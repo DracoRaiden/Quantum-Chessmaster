@@ -576,28 +576,245 @@ void Board::undoMove() {
     }
 }
 
-// Get all legal moves for the given player (true for white, false for black)
+vector<pair<int, int>> King::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Iterate over all possible directions the king can move (8 directions)
+    for (int dx : {-1, 0, 1}) {
+        for (int dy : {-1, 0, 1}) {
+            if (dx == 0 && dy == 0) continue;  // Skip the current position (0, 0)
+
+            int newX = startX + dx;
+            int newY = startY + dy;
+
+            // Check if the new position is within the board boundaries
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                // Check if the square is empty or occupied by an opponent's piece
+                if (!board.isSquareOccupied(newX, newY) || (board.isSquareOccupied(newX, newY) && board.getPiece(newX, newY)->getColor() != getColor())) {
+                    moves.push_back({newX, newY});
+                }
+            }
+        }
+    }
+
+    return moves;
+}
+
+vector<pair<int, int>> Rook::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Directions the rook can move: horizontally (left/right) and vertically (up/down)
+    vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    // Iterate over all possible directions
+    for (auto& dir : directions) {
+        int dx = dir.first;
+        int dy = dir.second;
+        int newX = startX;
+        int newY = startY;
+
+        // Move in the current direction until we hit the edge of the board or another piece
+        while (true) {
+            newX += dx;
+            newY += dy;
+
+            // Check if the new position is within the board boundaries
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
+                break; // Stop if we go out of bounds
+            }
+
+            // If the square is empty, it's a valid move
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            } 
+            // If the square is occupied by an opponent's piece, it's a valid capture move
+            else {
+                auto piece = board.getPiece(newX, newY);
+                if (piece && piece->getColor() != getColor()) {
+                    moves.push_back({newX, newY});
+                }
+                break; // Stop further movement in this direction if the square is occupied
+            }
+        }
+    }
+
+    return moves;
+}
+
+
+vector<pair<int, int>> Queen::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Directions the queen can move: horizontally (left/right), vertically (up/down), and diagonally
+    vector<pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1},   // Horizontal and vertical
+        {1, 1}, {-1, -1}, {1, -1}, {-1, 1}   // Diagonal directions
+    };
+
+    // Iterate over all possible directions
+    for (auto& dir : directions) {
+        int dx = dir.first;
+        int dy = dir.second;
+        int newX = startX;
+        int newY = startY;
+
+        // Move in the current direction until we hit the edge of the board or another piece
+        while (true) {
+            newX += dx;
+            newY += dy;
+
+            // Check if the new position is within the board boundaries
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
+                break; // Stop if we go out of bounds
+            }
+
+            // If the square is empty, it's a valid move
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            }
+            // If the square is occupied by an opponent's piece, it's a valid capture move
+            else {
+                auto piece = board.getPiece(newX, newY);
+                if (piece && piece->getColor() != getColor()) {
+                    moves.push_back({newX, newY});
+                }
+                break; // Stop further movement in this direction if the square is occupied
+            }
+        }
+    }
+
+    return moves;
+}
+
+vector<pair<int, int>> Bishop::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Directions the bishop can move: diagonally in all four diagonal directions
+    vector<pair<int, int>> directions = {
+        {1, 1}, {-1, -1}, {1, -1}, {-1, 1} // Diagonal directions
+    };
+
+    // Iterate over all possible diagonal directions
+    for (auto& dir : directions) {
+        int dx = dir.first;
+        int dy = dir.second;
+        int newX = startX;
+        int newY = startY;
+
+        // Move in the current direction until we hit the edge of the board or another piece
+        while (true) {
+            newX += dx;
+            newY += dy;
+
+            // Check if the new position is within the board boundaries
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
+                break; // Stop if we go out of bounds
+            }
+
+            // If the square is empty, it's a valid move
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            }
+            // If the square is occupied by an opponent's piece, it's a valid capture move
+            else {
+                auto piece = board.getPiece(newX, newY);
+                if (piece && piece->getColor() != getColor()) {
+                    moves.push_back({newX, newY});
+                }
+                break; // Stop further movement in this direction if the square is occupied
+            }
+        }
+    }
+
+    return moves;
+}
+
+vector<pair<int, int>> Pawn::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    int direction = getColor() ? -1 : 1; // White moves up (-1), black moves down (+1)
+    int newX = startX;
+    int newY = startY + direction;
+
+    // Normal move
+    if (!board.isSquareOccupied(newX, newY)) {
+        moves.push_back({newX, newY});
+    }
+
+    // Capture diagonals
+    for (int dx : {-1, 1}) {
+        int captureX = newX + dx;
+        if (captureX >= 0 && captureX < 8 && board.isSquareOccupied(captureX, newY)) {
+            auto piece = board.getPiece(captureX, newY);
+            if (piece && piece->getColor() != getColor()) {
+                moves.push_back({captureX, newY});
+            }
+        }
+    }
+
+    return moves;
+}
+
+vector<pair<int, int>> Knight::getPossibleMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // All possible "L" shaped moves for a knight
+    vector<pair<int, int>> directions = {
+        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, // Two squares in one direction, one square in the perpendicular direction
+        {1, 2}, {1, -2}, {-1, 2}, {-1, -2}  // One square in one direction, two squares in the perpendicular direction
+    };
+
+    // Check all possible moves
+    for (auto& dir : directions) {
+        int dx = dir.first;
+        int dy = dir.second;
+        int newX = startX + dx;
+        int newY = startY + dy;
+
+        // Check if the new position is within the board boundaries
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+            // If the square is empty or occupied by an opponent's piece, it's a valid move
+            if (!board.isSquareOccupied(newX, newY) || (board.getPiece(newX, newY) && board.getPiece(newX, newY)->getColor() != getColor())) {
+                moves.push_back({newX, newY});
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Get all legal moves for a given player
 vector<Move> Board::getLegalMovesForPlayer(int player)
 {
     vector<Move> legalMoves;
 
+    // Loop through each square on the board
     for (int startX = 0; startX < 8; ++startX)
     {
         for (int startY = 0; startY < 8; ++startY)
         {
+            // Get the piece at the current position
             shared_ptr<Piece> piece = board[startX][startY];
+
+            // If there's a piece belonging to the current player, generate its possible moves
             if (piece && piece->getColor() == player)
             {
-                for (int endX = 0; endX < 8; ++endX)
+                // Get all possible moves for this piece by calling the polymorphic function
+                vector<pair<int, int>> moves = piece->getPossibleMoves(startX, startY, *this);
+
+                // For each possible move, check the legality
+                for (const auto& move : moves)
                 {
-                    for (int endY = 0; endY < 8; ++endY)
+                    int endX = move.first;
+                    int endY = move.second;
+
+                    // Validate move conditions
+                    // 1. The square is empty, or it contains an opponent's piece (for capturing).
+                    // 2. The path is clear (for sliding pieces like rooks, bishops, and queens).
+                    if ((!isSquareOccupied(endX, endY) || board[endX][endY]->getColor() != player) &&
+                        isPathClear(startX, startY, endX, endY))
                     {
-                        if (piece->isValidMove(startX, startY, endX, endY) &&
-                            (!isSquareOccupied(endX, endY) || board[endX][endY]->getColor() != player) &&
-                            isPathClear(startX, startY, endX, endY))
-                        {
-                            legalMoves.push_back({startX, startY, endX, endY});
-                        }
+                        legalMoves.push_back({startX, startY, endX, endY});
                     }
                 }
             }
@@ -606,46 +823,21 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
 
     return legalMoves;
 }
+
+// Calculate a random AI move for the given player
 Move Board::calculateAIMove()
 {
-    vector<Move> validMoves;
+    // Get all legal moves for the AI (black pieces in this case)
+    vector<Move> possibleMoves = getLegalMovesForPlayer(false); // 'false' for black player
 
-    // Iterate over the board to find all possible moves for AI-controlled pieces
-    for (int startX = 0; startX < 8; ++startX)
+    // If no legal moves are available, return an invalid move (e.g., -1, -1, -1, -1)
+    if (possibleMoves.empty())
     {
-        for (int startY = 0; startY < 8; ++startY)
-        {
-            auto piece = board[startX][startY];
-            
-            // Skip empty squares or pieces that aren't controlled by the AI
-            if (!piece || piece->getColor() != 'b') // 'b' for black (AI)
-                continue;
-
-            // Try moving the piece to every square on the board
-            for (int endX = 0; endX < 8; ++endX)
-            {
-                for (int endY = 0; endY < 8; ++endY)
-                {
-                    // Save the current board state
-                    Board tempBoard = *this;
-
-                    // Validate the move using movePiece
-                    if (tempBoard.movePiece(startX, startY, endX, endY))
-                    {
-                        // If valid, add the move to the list of possible moves
-                        validMoves.push_back({startX, startY, endX, endY});
-                    }
-                }
-            }
-        }
+        return {-1, -1, -1, -1}; // No move available
     }
 
-    // If there are no valid moves, return an invalid move
-    if (validMoves.empty())
-    {
-        return {-1, -1, -1, -1}; // Indicates no valid moves
-    }
-
-    // Select a move (basic AI strategy: random selection for now)
-    return validMoves[rand() % validMoves.size()];
+    // Choose a random move from the available legal moves
+    srand(static_cast<unsigned>(time(0))); // Seed random number generator
+    int index = rand() % possibleMoves.size();  // Random index
+    return possibleMoves[index];  // Return the randomly selected move
 }

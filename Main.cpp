@@ -8,12 +8,11 @@ int main()
     chessBoard.setupBoard();
 
     string input, target, command;
-    int gameMode = 0;      // 1 for Player vs Player, 2 for player vs AI
+    int gameMode = 0;      // 1 for Player vs Player, 2 for Player vs AI
     int currentPlayer = 1; // 1 for Player 1 (White), 2 for Player 2 (Black)
 
-    cout << "Welcome to Chess (Player vs. Player)!" << endl;
-    cout << "Select Game Mode:\n1. Player vs Player\n2. Player vs AI\n";
-    cout<<"Enter 1 or 2: ";
+    cout << "Welcome to Chess!" << endl;
+    cout << "Select Game Mode:\n1. Player vs Player\n2. Player vs AI\nEnter 1 or 2: ";
     cin >> gameMode;
 
     if (gameMode != 1 && gameMode != 2)
@@ -24,47 +23,53 @@ int main()
 
     while (true)
     {
-        // Clear the screen only after user input, to avoid losing error messages
         if (command != "undo" && command != "quit")
         {
-            system("cls");
+            system("cls"); // Clear the screen for fresh display
         }
 
-        if (gameMode == 1)
-        {
-            cout << "Welcome to Chess (Player vs. Player)!" << endl;
-        }
-        else
-        {
-            cout << "Welcome to Chess (Player vs. AI)!" << endl;
-        }
-
+        cout << "Welcome to Chess (" << (gameMode == 1 ? "Player vs. Player" : "Player vs. AI") << ")!" << endl;
         chessBoard.printBoard();
 
-        // AI's turn (Player 2 in Player vs AI mode)
-        if (gameMode == 2 && currentPlayer == 2)
-        {
-            cout << "AI is making its move..." << endl;
+       if (gameMode == 2 && currentPlayer == 2) {
+    cout << "AI is making its move..." << endl;
 
-            // Calculate the AI's move
-            Move aiMove = chessBoard.calculateAIMove();
+    // Calculate the AI's move
+    Move aiMove = chessBoard.calculateAIMove();
 
-            // Validate the AI's move (safety check)
-            if (!chessBoard.movePiece(aiMove.startX, aiMove.startY, aiMove.endX, aiMove.endY))
-            {
-                cerr << "AI attempted an invalid move. Ending AI's turn." << endl;
-                continue; // Skip to the next iteration to avoid breaking the game flow
-            }
+    // Check if the AI has no valid moves
+    if (aiMove.startX == -1 && aiMove.startY == -1) {
+        cout << "AI has no valid moves. The game is over!" << endl;
 
-            // Update the board state and switch turn
-            cout << "AI moved piece from ("
-                 << aiMove.startX << ", " << aiMove.startY << ") to ("
-                 << aiMove.endX << ", " << aiMove.endY << ")" << endl;
+        // // Determine if it's stalemate or checkmate
+        // if (chessBoard.isKingInCheck(false)) {
+        //     cout << "Checkmate! Black wins!" << endl;
+        // } else {
+        //     cout << "Stalemate! The game is a draw." << endl;
+        // }
+        break;
+    }
 
-            currentPlayer = 1; // Switch back to Player 1
-            continue;
-        }
+    // Execute the move
+    if (!chessBoard.movePiece(aiMove.startX, aiMove.startY, aiMove.endX, aiMove.endY)) {
+        cerr << "AI attempted an invalid move. Skipping its turn." << endl;
+    } else {
+        cout << "AI moved piece from (" << aiMove.startX << ", " << aiMove.startY
+             << ") to (" << aiMove.endX << ", " << aiMove.endY << ")" << endl;
 
+        // // Check if the move resulted in the AI's king being in check
+        // if (chessBoard.isKingInCheck(false)) {
+        //     cout << "AI's move has resulted in check! The game is over." << endl;
+        //     break;  // End the game if the AI's move results in a check
+        // }
+
+        currentPlayer = 1; // Switch to Player 1
+    }
+
+    continue;
+}
+
+        // Player's turn
         cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, or 'quit' to exit: ";
         cin >> command;
 
@@ -74,15 +79,15 @@ int main()
             break;
         }
 
-        else if (command == "undo")
+        if (command == "undo")
         {
-            chessBoard.undoMove();                        // Just call the undoMove function directly
-            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch the player back after undo
+            chessBoard.undoMove(); // Undo the last move
+            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch back the player after undo
             cout << "Last move has been undone!" << endl;
             continue;
         }
 
-        cin >> target;
+        cin >> target; // Read the target position
 
         try
         {
@@ -127,6 +132,13 @@ int main()
         {
             cout << "Move out of bounds. " << e.what() << endl;
         }
+
+        // // Check for game-ending conditions
+        // if (chessBoard.isGameOver())
+        // {
+        //     cout << "Game over! Player " << (currentPlayer == 1 ? 2 : 1) << " wins!" << endl;
+        //     break;
+        // }
     }
 
     return 0;
