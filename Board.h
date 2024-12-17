@@ -106,10 +106,8 @@ public:
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
     bool canCastle(int startX, int startY, int endX, int endY) const;
-    // Undo the last move
     void undoMove();
-    // Function to track the current state of the board and push it to the history stack
-    void saveHistory();
+    void saveHistory();   //to get past input history
 
     bool isValidMoveUnderCheck(int startX, int startY, int endX, int endY, bool isWhite);
     bool makeMove(int startX, int startY, int endX, int endY, bool isWhite);
