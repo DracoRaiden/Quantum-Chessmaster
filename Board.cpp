@@ -738,6 +738,7 @@ void Board::makeMove(int startX, int startY, int endX, int endY, bool isWhite)
 }
 
 // Add this function to validate moves when the king is in check
+  
 bool Board::isValidMoveUnderCheck(int startX, int startY, int endX, int endY, bool isWhite)
 {
     // Make a hypothetical move
