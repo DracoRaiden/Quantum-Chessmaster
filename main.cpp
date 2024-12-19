@@ -17,17 +17,17 @@ int main()
         cout << "Welcome to Chess (Player vs. Player)!" << endl;
         chessBoard.printBoard();
 
-        // Check for game-ending conditions
-        if (chessBoard.isCheckmate(currentPlayer == 1))
-        {
-            cout << "Player " << currentPlayer << " is in checkmate! Game over." << endl;
-            break;
-        }
-        else if (chessBoard.isStalemate(currentPlayer == 1))
-        {
-            cout << "It's a stalemate! Game over." << endl;
-            break;
-        }
+        // // Check for game-ending conditions
+        // if (chessBoard.isCheckmate(currentPlayer == 1))
+        // {
+        //     cout << "Player " << currentPlayer << " is in checkmate! Game over." << endl;
+        //     break;
+        // }
+        // else if (chessBoard.isStalemate(currentPlayer == 1))
+        // {
+        //     cout << "It's a stalemate! Game over." << endl;
+        //     break;
+        // }
 
         // Display check warning
         if (chessBoard.isKingInCheck(currentPlayer == 1))

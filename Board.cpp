@@ -546,36 +546,54 @@ void Board::undoMove() {
     }
 }
 
-
-bool Board::isCheckmate(bool isWhite)
+bool Board::hasLegalMoves(bool isWhite)
 {
-    if (!isKingInCheck(isWhite))
-        return false;  // The king is not in check, so it can't be checkmate
+    for (int y = 0; y < 8; ++y)
+    {
+        for (int x = 0; x < 8; ++x)
+        {
+            shared_ptr<Piece> piece = board[y][x];
+            if (piece && piece->getColor() == isWhite)
+            {
+                // Try all possible moves for the piece
+                for (int endY = 0; endY < 8; ++endY)
+                {
+                    for (int endX = 0; endX < 8; ++endX)
+                    {
+                        if (piece->isValidMove(x, y, endX, endY) &&
+                            isPathClear(x, y, endX, endY))
+                        {
+                            // Simulate the move
+                            auto capturedPiece = board[endY][endX];
+                            board[endY][endX] = board[y][x];
+                            board[y][x] = nullptr;
 
-    if (!hasLegalMoves(isWhite))  // Check if no legal moves exist
-        return true;  // Checkmate condition is met
+                            // Check if the king is still in check
+                            bool stillInCheck = isKingInCheck(isWhite);
 
-    return false;
+                            // Undo the move
+                            board[y][x] = board[endY][endX];
+                            board[endY][endX] = capturedPiece;
+
+                            if (!stillInCheck)
+                            {
+                                return true; // Found a legal move
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false; // No legal moves found
 }
 
-bool Board::isStalemate(bool isWhite)
-{
-    if (isKingInCheck(isWhite))
-        return false;  // If the king is in check, it is not a stalemate
 
-    if (!hasLegalMoves(isWhite))  // Check if no legal moves exist
-        return true;  // Stalemate condition is met
-
-    return false;
-}
-
-
-// Function to check if the king is in check
 bool Board::isKingInCheck(bool isWhite) const
 {
     int kingX = -1, kingY = -1;
 
-    // Locate the king's position
+    // Locate the king
     for (int y = 0; y < 8; ++y)
     {
         for (int x = 0; x < 8; ++x)
@@ -590,169 +608,109 @@ bool Board::isKingInCheck(bool isWhite) const
         }
     }
 
+    // If king isn't found, return false or handle it appropriately
     if (kingX == -1 || kingY == -1)
-        return false;  // King not found
+        return false; // King not found, cannot be in check
 
     // Check if the king's position is under attack
     return isSquareUnderAttack(kingX, kingY, !isWhite);
 }
 
-// Function to check if a square is under attack
 bool Board::isSquareUnderAttack(int x, int y, bool byWhite) const
 {
-    // Check if any opponent's piece can attack the square
     for (int i = 0; i < 8; ++i)
     {
         for (int j = 0; j < 8; ++j)
         {
             shared_ptr<Piece> piece = board[i][j];
+            // Use getColor() instead of accessing isWhite directly
             if (piece && piece->getColor() == byWhite && piece->isValidMove(j, i, x, y))
             {
-                return true;  // Square is under attack
+                return true;
             }
         }
     }
-    return false;  // Square is not under attack
+    return false;
 }
 
-// Function to check if any move can protect the king
-bool Board::canMoveToProtectKing(bool isWhite)
-{
-    // Now, check if the current player can make a move to protect the king.
-    for (int y = 0; y < 8; ++y)
-    {
-        for (int x = 0; x < 8; ++x)
-        {
-            shared_ptr<Piece> piece = board[y][x];
-            if (piece && piece->getColor() == isWhite)
-            {
-                // Try all possible moves for the piece
-                for (int endY = 0; endY < 8; ++endY)
-                {
-                    for (int endX = 0; endX < 8; ++endX)
-                    {
-                        if (piece->isValidMove(x, y, endX, endY) && isPathClear(x, y, endX, endY))
-                        {
-                            // Simulate the move
-                            auto capturedPiece = board[endY][endX];
-                            board[endY][endX] = board[y][x];
-                            board[y][x] = nullptr;
+// bool Board::isCheckmate(bool isWhite)
+// {
+//     if (!isKingInCheck(isWhite))
+//         return false;
 
-                            // Check if the king is still in check after the move
-                            bool stillInCheck = isKingInCheck(isWhite);
+//     // Iterate through all pieces to check for any valid move
+//     for (int y = 0; y < 8; ++y)
+//     {
+//         for (int x = 0; x < 8; ++x)
+//         {
+//             shared_ptr<Piece> piece = board[y][x];
+//             // Use getColor() instead of accessing isWhite directly
+//             if (piece && piece->getColor() == isWhite)
+//             {
+//                 // Try all potential moves for this piece
+//                 for (int newY = 0; newY < 8; ++newY)
+//                 {
+//                     for (int newX = 0; newX < 8; ++newX)
+//                     {
+//                         // Simulate the move
+//                         shared_ptr<Piece> target = board[newY][newX];
+//                         board[newY][newX] = piece;
+//                         board[y][x] = nullptr;
 
-                            // Undo the move
-                            board[y][x] = board[endY][endX];
-                            board[endY][endX] = capturedPiece;
+//                         bool stillInCheck = isKingInCheck(isWhite);
 
-                            // If the move blocks the check, captures the attacker or moves the king out of check
-                            if (!stillInCheck)
-                            {
-                                return true;  // Legal move found to protect the king
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//                         // Undo the move
+//                         board[y][x] = piece;
+//                         board[newY][newX] = target;
 
-    return false;  // No legal move found to protect the king
-}
+//                         if (!stillInCheck)
+//                             return false; // Found a valid move
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-// Function to check if any legal moves exist for the player
-bool Board::hasLegalMoves(bool isWhite)
-{
-    // First, check if the king is in check.
-    if (isKingInCheck(isWhite)) {
-        cout << "King is in check! You must move the king or block the check." << endl;
+//     return true; // No valid moves found
+// }
 
-        // Check if there is any legal move that can protect the king
-        if (canMoveToProtectKing(isWhite)) {
-            return true;  // A move exists to protect the king
-        } else {
-            cout << "Player " << (isWhite ? 1 : 2) << " is in checkmate! Game over." << endl;
-            return false;  // No moves exist to protect the king, checkmate
-        }
-    }
+// bool Board::isStalemate(bool isWhite)
+// {
+//     if (isKingInCheck(isWhite))
+//         return false;
 
-    // Otherwise, check for all possible moves for the current player
-    for (int y = 0; y < 8; ++y)
-    {
-        for (int x = 0; x < 8; ++x)
-        {
-            shared_ptr<Piece> piece = board[y][x];
-            if (piece && piece->getColor() == isWhite)
-            {
-                // Try all possible moves for the piece
-                for (int endY = 0; endY < 8; ++endY)
-                {
-                    for (int endX = 0; endX < 8; ++endX)
-                    {
-                        if (piece->isValidMove(x, y, endX, endY) && isPathClear(x, y, endX, endY))
-                        {
-                            // Simulate the move
-                            auto capturedPiece = board[endY][endX];
-                            board[endY][endX] = board[y][x];
-                            board[y][x] = nullptr;
+//     // Iterate through all pieces to check for any valid move
+//     for (int y = 0; y < 8; ++y)
+//     {
+//         for (int x = 0; x < 8; ++x)
+//         {
+//             shared_ptr<Piece> piece = board[y][x];
+//             // Use getColor() instead of accessing isWhite directly
+//             if (piece && piece->getColor() == isWhite)
+//             {
+//                 // Try all potential moves for this piece
+//                 for (int newY = 0; newY < 8; ++newY)
+//                 {
+//                     for (int newX = 0; newX < 8; ++newX)
+//                     {
+//                         // Simulate the move
+//                         shared_ptr<Piece> target = board[newY][newX];
+//                         board[newY][newX] = piece;
+//                         board[y][x] = nullptr;
 
-                            // Check if the king is still in check after the move
-                            bool stillInCheck = isKingInCheck(isWhite);
+//                         bool stillInCheck = isKingInCheck(isWhite);
 
-                            // Undo the move
-                            board[y][x] = board[endY][endX];
-                            board[endY][endX] = capturedPiece;
+//                         // Undo the move
+//                         board[y][x] = piece;
+//                         board[newY][newX] = target;
 
-                            // If the move doesn't place the king in check, it's a valid move
-                            if (!stillInCheck)
-                            {
-                                return true;  // Legal move found
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//                         if (!stillInCheck)
+//                             return false; // Found a valid move
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    return false;  // No legal moves found
-}
-
-// Function to handle user input and validate moves
-void Board::makeMove(int startX, int startY, int endX, int endY, bool isWhite)
-{
-    if (isKingInCheck(isWhite)) {
-        cout << "King is in check! You must move the king or block the check." << endl;
-
-        // Check if the move is valid and can protect the king
-        if (canMoveToProtectKing(isWhite)) {
-            // Process the move normally
-            movePiece(startX, startY, endX, endY);
-        } else {
-            cout << "Invalid move! You must protect your king from check first." << endl;
-        }
-    } else {
-        // Normal move processing
-        movePiece(startX, startY, endX, endY);
-    }
-}
-
-// Add this function to validate moves when the king is in check
-  
-bool Board::isValidMoveUnderCheck(int startX, int startY, int endX, int endY, bool isWhite)
-{
-    // Make a hypothetical move
-    auto piece = board[startX][startY];
-    auto target = board[endX][endY];
-    board[endX][endY] = piece;
-    board[startX][startY] = nullptr;
-
-    // Check if the move resolves the check
-    bool stillInCheck = isKingInCheck(isWhite);
-
-    // Undo the hypothetical move
-    board[startX][startY] = piece;
-    board[endX][endY] = target;
-
-    return !stillInCheck;
-}
+//     return true; // No valid moves found
+// }

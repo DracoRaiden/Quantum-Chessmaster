@@ -106,21 +106,15 @@ public:
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
     bool canCastle(int startX, int startY, int endX, int endY) const;
+    // Undo the last move
     void undoMove();
-    void saveHistory();   //to get past input history
+    // Function to track the current state of the board and push it to the history stack
+    void saveHistory();
 
-    bool isValidMoveUnderCheck(int startX, int startY, int endX, int endY, bool isWhite);
-    bool makeMove(int startX, int startY, int endX, int endY, bool isWhite);
     bool isKingInCheck(bool isWhite) const;         // Checks if the king of the given color is in check
-    bool isCheckmate(bool isWhite);                // Checks if the player of the given color is in checkmate
-    bool isStalemate(bool isWhite);                // Checks if the player of the given color is in stalemate
+ //   bool isCheckmate(bool isWhite);                // Checks if the player of the given color is in checkmate
+ //   bool isStalemate(bool isWhite);                // Checks if the player of the given color is in stalemate
     bool hasLegalMoves(bool isWhite);              // Helper function to check if the player has any legal moves
-
-    // Check if any piece can move to protect the king.
-    bool canMoveToProtectKing(bool isWhite);
-
-
-
 };
 
 // Converts chess notation (e.g., "e2") to board indices
