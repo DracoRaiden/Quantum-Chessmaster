@@ -6,6 +6,8 @@
 #include <string>
 #include <memory> // For smart pointers (optional but useful)
 #include <stack>
+#include <queue>
+
 
 using namespace std;
 
@@ -95,6 +97,7 @@ private:
     stack<vector<vector<shared_ptr<Piece>>>> history;
 
 public:
+    queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
     Board(); // Constructor
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
@@ -108,6 +111,7 @@ public:
     bool canCastle(int startX, int startY, int endX, int endY) const;
     // Undo the last move
     void undoMove();
+    void redoMove();
     // Function to track the current state of the board and push it to the history stack
     void saveHistory();
 

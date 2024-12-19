@@ -17,25 +17,13 @@ int main()
         cout << "Welcome to Chess (Player vs. Player)!" << endl;
         chessBoard.printBoard();
 
-        // // Check for game-ending conditions
-        // if (chessBoard.isCheckmate(currentPlayer == 1))
-        // {
-        //     cout << "Player " << currentPlayer << " is in checkmate! Game over." << endl;
-        //     break;
-        // }
-        // else if (chessBoard.isStalemate(currentPlayer == 1))
-        // {
-        //     cout << "It's a stalemate! Game over." << endl;
-        //     break;
-        // }
-
         // Display check warning
         if (chessBoard.isKingInCheck(currentPlayer == 1))
         {
             cout << "Player " << currentPlayer << "'s king is in check!" << endl;
         }
 
-        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, or 'quit' to exit: ";
+        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo the undone move, or 'quit' to exit: ";
         cin >> command;
 
         if (command == "quit")
@@ -46,8 +34,15 @@ int main()
         else if (command == "undo")
         {
             chessBoard.undoMove();
-            currentPlayer = (currentPlayer == 1) ? 2 : 1;
+            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns back
             cout << "Last move has been undone!" << endl;
+            continue;
+        }
+        else if (command == "redo")
+        {
+            chessBoard.redoMove();
+            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
+            cout << "Move has been redone!" << endl;
             continue;
         }
 
@@ -94,9 +89,7 @@ int main()
         }
         catch (const out_of_range &e)
         {
-            cout << "Move out of bounds " << e.what() << endl;
-
-
+            cout << "Move out of bounds. " << e.what() << endl;
         }
     }
 

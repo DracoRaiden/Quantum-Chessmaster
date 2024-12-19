@@ -1,6 +1,9 @@
 #include "Board.h"
 #include <memory>
 #include<stack>
+#include <queue>
+
+queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
 
 // ANSI color codes
@@ -527,24 +530,47 @@ void Board::saveHistory() {
 
 
 void Board::undoMove() {
-    // Check if there is a move to undo (i.e., the history stack is not empty).
     if (!history.empty()) {
-        // Pop the top state from the history stack.
+        // Save the current state to redoHistory
+        redoHistory.push(board);
+
+        // Restore the previous state from the history stack
         vector<vector<shared_ptr<Piece>>> previousState = history.top();
         history.pop();
 
-        // Restore the board to the previous state.
         for (int row = 0; row < 8; ++row) {
             for (int col = 0; col < 8; ++col) {
-                // Set the board piece back to the previous state.
                 board[row][col] = previousState[row][col];
             }
         }
+        cout << "Move undone!" << endl;
     } else {
-        // If no moves are available to undo, print an error or handle it.
         cout << "No moves to undo!" << endl;
     }
 }
+
+void Board::redoMove() {
+    if (!redoHistory.empty()) {
+        // Save the current state to history
+        history.push(board);
+
+        // Restore the next state from redoHistory
+        vector<vector<shared_ptr<Piece>>> nextState = redoHistory.front();
+        redoHistory.pop();
+
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 8; ++col) {
+                board[row][col] = nextState[row][col];
+            }
+        }
+        cout << "Move redone!" << endl;
+    } else {
+        cout << "No moves to redo!" << endl;
+    }
+}
+
+
+
 
 bool Board::hasLegalMoves(bool isWhite)
 {
