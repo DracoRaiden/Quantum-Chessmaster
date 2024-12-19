@@ -576,21 +576,117 @@ void Board::undoMove() {
     }
 }
 
-vector<pair<int, int>> King::getPossibleMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
     vector<pair<int, int>> moves;
 
-    // Iterate over all possible directions the king can move (8 directions)
-    for (int dx : {-1, 0, 1}) {
-        for (int dy : {-1, 0, 1}) {
-            if (dx == 0 && dy == 0) continue;  // Skip the current position (0, 0)
+    // Check if there is a piece at the given position
+    if (!isSquareOccupied(startX, startY)) {
+        return moves; // Return an empty list if no piece exists
+    }
 
+    // Retrieve the piece and its type
+    auto piece = getPiece(startX, startY);
+    if (!piece) {
+        return moves; // Safety check
+    }
+
+    char pieceType = piece->getSymbol(); // Assuming getType() returns a char: 'K', 'Q', 'R', 'B', 'N', or 'P'
+
+    // King movement
+    if (pieceType == 'K' ||pieceType == 'k') {
+        for (int dx : {-1, 0, 1}) {
+            for (int dy : {-1, 0, 1}) {
+                if (dx == 0 && dy == 0) continue;
+                int newX = startX + dx, newY = startY + dy;
+                if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+                    (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor())) {
+                    moves.push_back({newX, newY});
+                }
+            }
+        }
+    }
+
+    // Rook movement
+    else if (pieceType == 'R' || pieceType == 'r') {
+        vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (auto& dir : directions) {
+            int newX = startX, newY = startY;
+            while (true) {
+                newX += dir.first, newY += dir.second;
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
+                else {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                    break;
+                }
+            }
+        }
+    }
+
+    // Bishop movement
+    else if (pieceType == 'B' || pieceType == 'b') {
+        vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+        for (auto& dir : directions) {
+            int newX = startX, newY = startY;
+            while (true) {
+                newX += dir.first, newY += dir.second;
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
+                else {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                    break;
+                }
+            }
+        }
+    }
+
+    // Queen movement
+    else if (pieceType == 'Q' || pieceType == 'q') {
+        vector<pair<int, int>> directions = {
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+        for (auto& dir : directions) {
+            int newX = startX, newY = startY;
+            while (true) {
+                newX += dir.first, newY += dir.second;
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
+                else {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                    break;
+                }
+            }
+        }
+    }
+
+    // Knight movement
+    else if (pieceType == 'N' || pieceType == 'n') {
+        vector<pair<int, int>> directions = {
+            {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+        for (auto& dir : directions) {
+            int newX = startX + dir.first, newY = startY + dir.second;
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+                (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor())) {
+                moves.push_back({newX, newY});
+            }
+        }
+    }
+
+    // Pawn movement
+    else if (pieceType == 'P' || pieceType == 'p') {
+        int direction = piece->getColor() ? -1 : 1;
+        int newY = startY + direction;
+
+        // Forward move
+        if (newY >= 0 && newY < 8 && !isSquareOccupied(startX, newY)) {
+            moves.push_back({startX, newY});
+        }
+
+        // Capture diagonals
+        for (int dx : {-1, 1}) {
             int newX = startX + dx;
-            int newY = startY + dy;
-
-            // Check if the new position is within the board boundaries
-            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-                // Check if the square is empty or occupied by an opponent's piece
-                if (!board.isSquareOccupied(newX, newY) || (board.isSquareOccupied(newX, newY) && board.getPiece(newX, newY)->getColor() != getColor())) {
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 && isSquareOccupied(newX, newY)) {
+                auto target = getPiece(newX, newY);
+                if (target && target->getColor() != piece->getColor()) {
                     moves.push_back({newX, newY});
                 }
             }
@@ -600,188 +696,6 @@ vector<pair<int, int>> King::getPossibleMoves(int startX, int startY, const Boar
     return moves;
 }
 
-vector<pair<int, int>> Rook::getPossibleMoves(int startX, int startY, const Board& board) const {
-    vector<pair<int, int>> moves;
-
-    // Directions the rook can move: horizontally (left/right) and vertically (up/down)
-    vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-    // Iterate over all possible directions
-    for (auto& dir : directions) {
-        int dx = dir.first;
-        int dy = dir.second;
-        int newX = startX;
-        int newY = startY;
-
-        // Move in the current direction until we hit the edge of the board or another piece
-        while (true) {
-            newX += dx;
-            newY += dy;
-
-            // Check if the new position is within the board boundaries
-            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
-                break; // Stop if we go out of bounds
-            }
-
-            // If the square is empty, it's a valid move
-            if (!board.isSquareOccupied(newX, newY)) {
-                moves.push_back({newX, newY});
-            } 
-            // If the square is occupied by an opponent's piece, it's a valid capture move
-            else {
-                auto piece = board.getPiece(newX, newY);
-                if (piece && piece->getColor() != getColor()) {
-                    moves.push_back({newX, newY});
-                }
-                break; // Stop further movement in this direction if the square is occupied
-            }
-        }
-    }
-
-    return moves;
-}
-
-
-vector<pair<int, int>> Queen::getPossibleMoves(int startX, int startY, const Board& board) const {
-    vector<pair<int, int>> moves;
-
-    // Directions the queen can move: horizontally (left/right), vertically (up/down), and diagonally
-    vector<pair<int, int>> directions = {
-        {1, 0}, {-1, 0}, {0, 1}, {0, -1},   // Horizontal and vertical
-        {1, 1}, {-1, -1}, {1, -1}, {-1, 1}   // Diagonal directions
-    };
-
-    // Iterate over all possible directions
-    for (auto& dir : directions) {
-        int dx = dir.first;
-        int dy = dir.second;
-        int newX = startX;
-        int newY = startY;
-
-        // Move in the current direction until we hit the edge of the board or another piece
-        while (true) {
-            newX += dx;
-            newY += dy;
-
-            // Check if the new position is within the board boundaries
-            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
-                break; // Stop if we go out of bounds
-            }
-
-            // If the square is empty, it's a valid move
-            if (!board.isSquareOccupied(newX, newY)) {
-                moves.push_back({newX, newY});
-            }
-            // If the square is occupied by an opponent's piece, it's a valid capture move
-            else {
-                auto piece = board.getPiece(newX, newY);
-                if (piece && piece->getColor() != getColor()) {
-                    moves.push_back({newX, newY});
-                }
-                break; // Stop further movement in this direction if the square is occupied
-            }
-        }
-    }
-
-    return moves;
-}
-
-vector<pair<int, int>> Bishop::getPossibleMoves(int startX, int startY, const Board& board) const {
-    vector<pair<int, int>> moves;
-
-    // Directions the bishop can move: diagonally in all four diagonal directions
-    vector<pair<int, int>> directions = {
-        {1, 1}, {-1, -1}, {1, -1}, {-1, 1} // Diagonal directions
-    };
-
-    // Iterate over all possible diagonal directions
-    for (auto& dir : directions) {
-        int dx = dir.first;
-        int dy = dir.second;
-        int newX = startX;
-        int newY = startY;
-
-        // Move in the current direction until we hit the edge of the board or another piece
-        while (true) {
-            newX += dx;
-            newY += dy;
-
-            // Check if the new position is within the board boundaries
-            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) {
-                break; // Stop if we go out of bounds
-            }
-
-            // If the square is empty, it's a valid move
-            if (!board.isSquareOccupied(newX, newY)) {
-                moves.push_back({newX, newY});
-            }
-            // If the square is occupied by an opponent's piece, it's a valid capture move
-            else {
-                auto piece = board.getPiece(newX, newY);
-                if (piece && piece->getColor() != getColor()) {
-                    moves.push_back({newX, newY});
-                }
-                break; // Stop further movement in this direction if the square is occupied
-            }
-        }
-    }
-
-    return moves;
-}
-
-vector<pair<int, int>> Pawn::getPossibleMoves(int startX, int startY, const Board& board) const {
-    vector<pair<int, int>> moves;
-
-    int direction = getColor() ? -1 : 1; // White moves up (-1), black moves down (+1)
-    int newX = startX;
-    int newY = startY + direction;
-
-    // Normal move
-    if (!board.isSquareOccupied(newX, newY)) {
-        moves.push_back({newX, newY});
-    }
-
-    // Capture diagonals
-    for (int dx : {-1, 1}) {
-        int captureX = newX + dx;
-        if (captureX >= 0 && captureX < 8 && board.isSquareOccupied(captureX, newY)) {
-            auto piece = board.getPiece(captureX, newY);
-            if (piece && piece->getColor() != getColor()) {
-                moves.push_back({captureX, newY});
-            }
-        }
-    }
-
-    return moves;
-}
-
-vector<pair<int, int>> Knight::getPossibleMoves(int startX, int startY, const Board& board) const {
-    vector<pair<int, int>> moves;
-
-    // All possible "L" shaped moves for a knight
-    vector<pair<int, int>> directions = {
-        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, // Two squares in one direction, one square in the perpendicular direction
-        {1, 2}, {1, -2}, {-1, 2}, {-1, -2}  // One square in one direction, two squares in the perpendicular direction
-    };
-
-    // Check all possible moves
-    for (auto& dir : directions) {
-        int dx = dir.first;
-        int dy = dir.second;
-        int newX = startX + dx;
-        int newY = startY + dy;
-
-        // Check if the new position is within the board boundaries
-        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-            // If the square is empty or occupied by an opponent's piece, it's a valid move
-            if (!board.isSquareOccupied(newX, newY) || (board.getPiece(newX, newY) && board.getPiece(newX, newY)->getColor() != getColor())) {
-                moves.push_back({newX, newY});
-            }
-        }
-    }
-
-    return moves;
-}
 
 // Get all legal moves for a given player
 vector<Move> Board::getLegalMovesForPlayer(int player)
@@ -800,7 +714,7 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
             if (piece && piece->getColor() == player)
             {
                 // Get all possible moves for this piece by calling the polymorphic function
-                vector<pair<int, int>> moves = piece->getPossibleMoves(startX, startY, *this);
+                vector<pair<int, int>> moves = getPossibleMoves(startX, startY);
 
                 // For each possible move, check the legality
                 for (const auto& move : moves)
