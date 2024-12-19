@@ -1,8 +1,9 @@
 #include "Board.h"
 #include <memory>
-#include<stack>
-#include<cstdlib>
-
+#include <stack>
+#include <cstdlib>
+#include<algorithm>
+#include<random>
 
 // ANSI color codes
 const string RESET = "\033[0m";
@@ -85,23 +86,26 @@ bool Queen::isValidMove(int startX, int startY, int endX, int endY) const
     return (startX == endX || startY == endY || abs(endX - startX) == abs(endY - startY));
 }
 
-bool King::isValidMove(int startX, int startY, int endX, int endY) const {
+bool King::isValidMove(int startX, int startY, int endX, int endY) const
+{
     // Normal King movement: one square in any direction
-    if (abs(endX - startX) <= 1 && abs(endY - startY) <= 1) {
+    if (abs(endX - startX) <= 1 && abs(endY - startY) <= 1)
+    {
         return true;
     }
 
     // Castling check: two-square horizontal move
-    if (startX == endX && abs(endY - startY) == 2) { // Same row, two-square move
+    if (startX == endX && abs(endY - startY) == 2)
+    { // Same row, two-square move
         // Ensure the king hasn't moved before
-        if (!hasMoved) {
+        if (!hasMoved)
+        {
             return true; // Castling attempt is valid at this point
         }
     }
 
     return false; // Move is invalid if it doesn't satisfy the above conditions
 }
-
 
 // Board Implementation
 Board::Board()
@@ -404,19 +408,21 @@ void Board::updateLastMove(int startX, int startY, int endX, int endY, bool isTw
     //      << isTwoSquareMove << endl;
 }
 
-
-void Board::promotePawn(int x, int y) {
+void Board::promotePawn(int x, int y)
+{
     // Check if the piece at the position is a pawn
-    if (!board[x][y] || (board[x][y]->getSymbol() != 'P' && board[x][y]->getSymbol() != 'p')) {
+    if (!board[x][y] || (board[x][y]->getSymbol() != 'P' && board[x][y]->getSymbol() != 'p'))
+    {
         cout << "No pawn at the promotion position!" << endl;
         return;
     }
 
     // Determine if the pawn is white or black
-    bool isWhitePawn = board[x][y]->getColor();  // Using getColor() instead of checking symbol
+    bool isWhitePawn = board[x][y]->getColor(); // Using getColor() instead of checking symbol
 
     // Ensure the pawn is in the promotion row
-    if ((isWhitePawn && x != 0) || (!isWhitePawn && x != 7)) {
+    if ((isWhitePawn && x != 0) || (!isWhitePawn && x != 7))
+    {
         cout << "The pawn hasn't reached the promotion rank!" << endl;
         return;
     }
@@ -429,29 +435,50 @@ void Board::promotePawn(int x, int y) {
     // Validate the promotion choice based on the pawn's color
     shared_ptr<Piece> newPiece;
 
-    if (isWhitePawn) {
+    if (isWhitePawn)
+    {
         // For white pawn (Player 1), create white pieces
-        switch (toupper(promotionChoice)) {
-            case 'Q': newPiece = make_shared<Queen>(true); break;    // White Queen
-            case 'R': newPiece = make_shared<Rook>(true); break;     // White Rook
-            case 'B': newPiece = make_shared<Bishop>(true); break;   // White Bishop
-            case 'N': newPiece = make_shared<Knight>(true); break;   // White Knight
-            default:
-                cout << "Invalid promotion choice for white. Defaulting to Queen." << endl;
-                newPiece = make_shared<Queen>(true);                 // Default to White Queen
-                break;
+        switch (toupper(promotionChoice))
+        {
+        case 'Q':
+            newPiece = make_shared<Queen>(true);
+            break; // White Queen
+        case 'R':
+            newPiece = make_shared<Rook>(true);
+            break; // White Rook
+        case 'B':
+            newPiece = make_shared<Bishop>(true);
+            break; // White Bishop
+        case 'N':
+            newPiece = make_shared<Knight>(true);
+            break; // White Knight
+        default:
+            cout << "Invalid promotion choice for white. Defaulting to Queen." << endl;
+            newPiece = make_shared<Queen>(true); // Default to White Queen
+            break;
         }
-    } else {
+    }
+    else
+    {
         // For black pawn (Player 2), create black pieces
-        switch (tolower(promotionChoice)) {
-            case 'q': newPiece = make_shared<Queen>(false); break;   // Black Queen
-            case 'r': newPiece = make_shared<Rook>(false); break;    // Black Rook
-            case 'b': newPiece = make_shared<Bishop>(false); break;  // Black Bishop
-            case 'n': newPiece = make_shared<Knight>(false); break;  // Black Knight
-            default:
-                cout << "Invalid promotion choice for black. Defaulting to Queen." << endl;
-                newPiece = make_shared<Queen>(false);                // Default to Black Queen
-                break;
+        switch (tolower(promotionChoice))
+        {
+        case 'q':
+            newPiece = make_shared<Queen>(false);
+            break; // Black Queen
+        case 'r':
+            newPiece = make_shared<Rook>(false);
+            break; // Black Rook
+        case 'b':
+            newPiece = make_shared<Bishop>(false);
+            break; // Black Bishop
+        case 'n':
+            newPiece = make_shared<Knight>(false);
+            break; // Black Knight
+        default:
+            cout << "Invalid promotion choice for black. Defaulting to Queen." << endl;
+            newPiece = make_shared<Queen>(false); // Default to Black Queen
+            break;
         }
     }
 
@@ -461,13 +488,16 @@ void Board::promotePawn(int x, int y) {
     cout << "Pawn promoted to " << newPiece->getSymbol() << "!" << endl;
 }
 
-bool Board::canCastle(int startX, int startY, int endX, int endY) const {
+bool Board::canCastle(int startX, int startY, int endX, int endY) const
+{
     shared_ptr<Piece> king = board[startX][startY];
-    if (!king || (king->getSymbol() != 'K' && king->getSymbol() != 'k')) {
+    if (!king || (king->getSymbol() != 'K' && king->getSymbol() != 'k'))
+    {
         cout << "Not a king!" << endl;
         return false;
     }
-    if (king->getHasMoved()) {
+    if (king->getHasMoved())
+    {
         cout << "King has already moved!" << endl;
         return false;
     }
@@ -475,55 +505,67 @@ bool Board::canCastle(int startX, int startY, int endX, int endY) const {
     bool isKingside = (endY > startY);
     int rookY = isKingside ? 7 : 0;
     shared_ptr<Piece> rook = board[startX][rookY];
-    if (!rook || rook->getSymbol() != 'R' && rook->getSymbol() != 'r' || rook->getHasMoved()) {
+    if (!rook || rook->getSymbol() != 'R' && rook->getSymbol() != 'r' || rook->getHasMoved())
+    {
         cout << "Invalid rook for castling!" << endl;
         return false;
     }
 
     // Ensure no pieces between the king and rook
     int step = isKingside ? 1 : -1;
-    for (int y = startY + step; y != rookY; y += step) {
-        if (board[startX][y]) {
+    for (int y = startY + step; y != rookY; y += step)
+    {
+        if (board[startX][y])
+        {
             cout << "Path blocked at " << startX << "," << y << "!" << endl;
             return false;
         }
     }
 
-   // Ensure squares the king moves through are not under attack
-for (int y = startY; y != endY + step; y += step) {
-    if (y != startY) {
-        // Check if the square is under attack
-        if (isSquareUnderAttack(startX, y, king->getColor())) {
-            cout << "Square " << startX << "," << y << " is under attack!" << endl;
-            return false;
+    // Ensure squares the king moves through are not under attack
+    for (int y = startY; y != endY + step; y += step)
+    {
+        if (y != startY)
+        {
+            // Check if the square is under attack
+            if (isSquareUnderAttack(startX, y, king->getColor()))
+            {
+                cout << "Square " << startX << "," << y << " is under attack!" << endl;
+                return false;
+            }
         }
     }
-}
-
-
-
 
     return true;
 }
 
-bool Board::isSquareUnderAttack(int x, int y, bool color) const {
+bool Board::isSquareUnderAttack(int x, int y, bool color) const
+{
     cout << "Checking square: " << x << "," << y << endl;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
             shared_ptr<Piece> attacker = board[i][j];
-            if (attacker && attacker->getColor() != color) {
+            if (attacker && attacker->getColor() != color)
+            {
                 // Check if the attacker can move to (x, y)
-                if (attacker->isValidMove(i, j, x, y)) {
+                if (attacker->isValidMove(i, j, x, y))
+                {
                     // For long-range pieces (Q, R, B), ensure they are not blocking the path
-                    if (attacker->getSymbol() == 'Q' || attacker->getSymbol() == 'R' || attacker->getSymbol() == 'B') {
-                        if (!isPathClear(i, j, x, y)) {
+                    if (attacker->getSymbol() == 'Q' || attacker->getSymbol() == 'R' || attacker->getSymbol() == 'B')
+                    {
+                        if (!isPathClear(i, j, x, y))
+                        {
                             continue; // Path is not clear, invalid move
                         }
                     }
 
                     // Skip attacking squares if they are not on the castling path
-                    if (x == 7 && y == 3) { // For d1 (7,3)
-                        if (attacker->getSymbol() == 'q' && i == 0 && j == 3) {  // If the piece is the queen on d1 itself, skip
+                    if (x == 7 && y == 3)
+                    { // For d1 (7,3)
+                        if (attacker->getSymbol() == 'q' && i == 0 && j == 3)
+                        { // If the piece is the queen on d1 itself, skip
                             continue;
                         }
                     }
@@ -535,15 +577,17 @@ bool Board::isSquareUnderAttack(int x, int y, bool color) const {
     return false; // No attackers found
 }
 
-
-void Board::saveHistory() {
+void Board::saveHistory()
+{
     // Create a new vector to store the current state of the board.
     vector<vector<shared_ptr<Piece>>> currentState;
-    
+
     // Iterate through each square on the board and store the current piece.
-    for (int row = 0; row < 8; ++row) {
+    for (int row = 0; row < 8; ++row)
+    {
         vector<shared_ptr<Piece>> rowState;
-        for (int col = 0; col < 8; ++col) {
+        for (int col = 0; col < 8; ++col)
+        {
             // Add the piece at the current position to the row.
             rowState.push_back(board[row][col]);
         }
@@ -555,51 +599,64 @@ void Board::saveHistory() {
     history.push(currentState);
 }
 
-
-void Board::undoMove() {
+void Board::undoMove()
+{
     // Check if there is a move to undo (i.e., the history stack is not empty).
-    if (!history.empty()) {
+    if (!history.empty())
+    {
         // Pop the top state from the history stack.
         vector<vector<shared_ptr<Piece>>> previousState = history.top();
         history.pop();
 
         // Restore the board to the previous state.
-        for (int row = 0; row < 8; ++row) {
-            for (int col = 0; col < 8; ++col) {
+        for (int row = 0; row < 8; ++row)
+        {
+            for (int col = 0; col < 8; ++col)
+            {
                 // Set the board piece back to the previous state.
                 board[row][col] = previousState[row][col];
             }
         }
-    } else {
+    }
+    else
+    {
         // If no moves are available to undo, print an error or handle it.
         cout << "No moves to undo!" << endl;
     }
 }
 
-vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
+vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
+{
     vector<pair<int, int>> moves;
 
     // Check if there is a piece at the given position
-    if (!isSquareOccupied(startX, startY)) {
+    if (!isSquareOccupied(startX, startY))
+    {
         return moves; // Return an empty list if no piece exists
     }
 
     // Retrieve the piece and its type
     auto piece = getPiece(startX, startY);
-    if (!piece) {
+    if (!piece)
+    {
         return moves; // Safety check
     }
 
     char pieceType = piece->getSymbol(); // Assuming getType() returns a char: 'K', 'Q', 'R', 'B', 'N', or 'P'
 
     // King movement
-    if (pieceType == 'K' ||pieceType == 'k') {
-        for (int dx : {-1, 0, 1}) {
-            for (int dy : {-1, 0, 1}) {
-                if (dx == 0 && dy == 0) continue;
+    if (pieceType == 'K' || pieceType == 'k')
+    {
+        for (int dx : {-1, 0, 1})
+        {
+            for (int dy : {-1, 0, 1})
+            {
+                if (dx == 0 && dy == 0)
+                    continue;
                 int newX = startX + dx, newY = startY + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
-                    (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor())) {
+                    (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
+                {
                     moves.push_back({newX, newY});
                 }
             }
@@ -607,16 +664,23 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
     }
 
     // Rook movement
-    else if (pieceType == 'R' || pieceType == 'r') {
+    else if (pieceType == 'R' || pieceType == 'r')
+    {
         vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (auto& dir : directions) {
+        for (auto &dir : directions)
+        {
             int newX = startX, newY = startY;
-            while (true) {
+            while (true)
+            {
                 newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
-                else {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                    break;
+                if (!isSquareOccupied(newX, newY))
+                    moves.push_back({newX, newY});
+                else
+                {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor())
+                        moves.push_back({newX, newY});
                     break;
                 }
             }
@@ -624,16 +688,23 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
     }
 
     // Bishop movement
-    else if (pieceType == 'B' || pieceType == 'b') {
+    else if (pieceType == 'B' || pieceType == 'b')
+    {
         vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-        for (auto& dir : directions) {
+        for (auto &dir : directions)
+        {
             int newX = startX, newY = startY;
-            while (true) {
+            while (true)
+            {
                 newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
-                else {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                    break;
+                if (!isSquareOccupied(newX, newY))
+                    moves.push_back({newX, newY});
+                else
+                {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor())
+                        moves.push_back({newX, newY});
                     break;
                 }
             }
@@ -641,17 +712,24 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
     }
 
     // Queen movement
-    else if (pieceType == 'Q' || pieceType == 'q') {
+    else if (pieceType == 'Q' || pieceType == 'q')
+    {
         vector<pair<int, int>> directions = {
             {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-        for (auto& dir : directions) {
+        for (auto &dir : directions)
+        {
             int newX = startX, newY = startY;
-            while (true) {
+            while (true)
+            {
                 newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-                if (!isSquareOccupied(newX, newY)) moves.push_back({newX, newY});
-                else {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor()) moves.push_back({newX, newY});
+                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                    break;
+                if (!isSquareOccupied(newX, newY))
+                    moves.push_back({newX, newY});
+                else
+                {
+                    if (getPiece(newX, newY)->getColor() != piece->getColor())
+                        moves.push_back({newX, newY});
                     break;
                 }
             }
@@ -659,34 +737,42 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
     }
 
     // Knight movement
-    else if (pieceType == 'N' || pieceType == 'n') {
+    else if (pieceType == 'N' || pieceType == 'n')
+    {
         vector<pair<int, int>> directions = {
             {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
-        for (auto& dir : directions) {
+        for (auto &dir : directions)
+        {
             int newX = startX + dir.first, newY = startY + dir.second;
             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
-                (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor())) {
+                (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
+            {
                 moves.push_back({newX, newY});
             }
         }
     }
 
     // Pawn movement
-    else if (pieceType == 'P' || pieceType == 'p') {
+    else if (pieceType == 'P' || pieceType == 'p')
+    {
         int direction = piece->getColor() ? -1 : 1;
         int newY = startY + direction;
 
         // Forward move
-        if (newY >= 0 && newY < 8 && !isSquareOccupied(startX, newY)) {
+        if (newY >= 0 && newY < 8 && !isSquareOccupied(startX, newY))
+        {
             moves.push_back({startX, newY});
         }
 
         // Capture diagonals
-        for (int dx : {-1, 1}) {
+        for (int dx : {-1, 1})
+        {
             int newX = startX + dx;
-            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 && isSquareOccupied(newX, newY)) {
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 && isSquareOccupied(newX, newY))
+            {
                 auto target = getPiece(newX, newY);
-                if (target && target->getColor() != piece->getColor()) {
+                if (target && target->getColor() != piece->getColor())
+                {
                     moves.push_back({newX, newY});
                 }
             }
@@ -695,7 +781,6 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
 
     return moves;
 }
-
 
 // Get all legal moves for a given player
 vector<Move> Board::getLegalMovesForPlayer(int player)
@@ -717,7 +802,7 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
                 vector<pair<int, int>> moves = getPossibleMoves(startX, startY);
 
                 // For each possible move, check the legality
-                for (const auto& move : moves)
+                for (const auto &move : moves)
                 {
                     int endX = move.first;
                     int endY = move.second;
@@ -725,8 +810,7 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
                     // Validate move conditions
                     // 1. The square is empty, or it contains an opponent's piece (for capturing).
                     // 2. The path is clear (for sliding pieces like rooks, bishops, and queens).
-                    if ((!isSquareOccupied(endX, endY) || board[endX][endY]->getColor() != player) &&
-                        isPathClear(startX, startY, endX, endY))
+                    if (movePiece(startX, startY, endX, endY))
                     {
                         legalMoves.push_back({startX, startY, endX, endY});
                     }
@@ -738,20 +822,43 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
     return legalMoves;
 }
 
-// Calculate a random AI move for the given player
-Move Board::calculateAIMove()
-{
-    // Get all legal moves for the AI (black pieces in this case)
-    vector<Move> possibleMoves = getLegalMovesForPlayer(false); // 'false' for black player
+vector<Move> lastAIMoves;
 
-    // If no legal moves are available, return an invalid move (e.g., -1, -1, -1, -1)
-    if (possibleMoves.empty())
-    {
-        return {-1, -1, -1, -1}; // No move available
+bool Board::isMoveRepeated(const Move& move) {
+    return std::find(lastAIMoves.begin(), lastAIMoves.end(), move) != lastAIMoves.end();
+}
+
+void Board::markMoveAsMade(const Move& move) {
+    if (lastAIMoves.size() >= 5) {
+        lastAIMoves.erase(lastAIMoves.begin());
+    }
+    lastAIMoves.push_back(move);
+}
+
+
+Move Board::calculateAIMove() {
+    vector<Move> possibleMoves = getLegalMovesForPlayer(false); // Black (AI)
+
+    // Initialize a random number generator
+    random_device rd;
+    mt19937 g(rd());
+
+    // Shuffle the possible moves
+    shuffle(possibleMoves.begin(), possibleMoves.end(), g);
+
+    for (const Move& move : possibleMoves) {
+        if (movePiece(move.startX, move.startY, move.endX, move.endY)) {
+            // Undo the move to maintain game state
+            undoMove();
+
+            // Ensure the move doesn't repeat previous actions
+            if (!isMoveRepeated(move)) {
+                markMoveAsMade(move);
+                return move;
+            }
+        }
     }
 
-    // Choose a random move from the available legal moves
-    srand(static_cast<unsigned>(time(0))); // Seed random number generator
-    int index = rand() % possibleMoves.size();  // Random index
-    return possibleMoves[index];  // Return the randomly selected move
+    // No valid moves found
+    return {-1, -1, -1, -1};
 }

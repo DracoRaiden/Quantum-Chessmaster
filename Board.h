@@ -1,4 +1,4 @@
- #ifndef BOARD_H
+#ifndef BOARD_H
 #define BOARD_H
 
 #include <iostream>
@@ -117,7 +117,8 @@ public:
     // Function to track the current state of the board and push it to the history stack
     void saveHistory();
     vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
-
+    bool isMoveRepeated(const Move &move);
+    void markMoveAsMade(const Move &move);
     Move calculateAIMove();                          // Function to calculate AI's move
     vector<Move> getLegalMovesForPlayer(int player); // Get all legal moves for a player
 };

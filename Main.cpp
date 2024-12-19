@@ -30,44 +30,32 @@ int main()
 
         cout << "Welcome to Chess (" << (gameMode == 1 ? "Player vs. Player" : "Player vs. AI") << ")!" << endl;
         chessBoard.printBoard();
-
-       if (gameMode == 2 && currentPlayer == 2) {
+if (gameMode == 2 && currentPlayer == 2) {
     cout << "AI is making its move..." << endl;
 
-    // Calculate the AI's move
     Move aiMove = chessBoard.calculateAIMove();
 
-    // Check if the AI has no valid moves
     if (aiMove.startX == -1 && aiMove.startY == -1) {
         cout << "AI has no valid moves. The game is over!" << endl;
 
-        // // Determine if it's stalemate or checkmate
         // if (chessBoard.isKingInCheck(false)) {
-        //     cout << "Checkmate! Black wins!" << endl;
+        //     cout << "Checkmate! Player 1 wins!" << endl;
         // } else {
         //     cout << "Stalemate! The game is a draw." << endl;
         // }
         break;
     }
 
-    // Execute the move
-    if (!chessBoard.movePiece(aiMove.startX, aiMove.startY, aiMove.endX, aiMove.endY)) {
-        cerr << "AI attempted an invalid move. Skipping its turn." << endl;
-    } else {
+    if (chessBoard.movePiece(aiMove.startX, aiMove.startY, aiMove.endX, aiMove.endY)) {
         cout << "AI moved piece from (" << aiMove.startX << ", " << aiMove.startY
              << ") to (" << aiMove.endX << ", " << aiMove.endY << ")" << endl;
 
-        // // Check if the move resulted in the AI's king being in check
-        // if (chessBoard.isKingInCheck(false)) {
-        //     cout << "AI's move has resulted in check! The game is over." << endl;
-        //     break;  // End the game if the AI's move results in a check
-        // }
-
         currentPlayer = 1; // Switch to Player 1
+    } else {
+        cerr << "AI attempted an invalid move. This should not happen." << endl;
     }
-
-    continue;
 }
+
 
         // Player's turn
         cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, or 'quit' to exit: ";
