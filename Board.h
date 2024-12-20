@@ -7,7 +7,7 @@
 #include <memory> // For smart pointers (optional but useful)
 #include <stack>
 #include <queue>
-
+#include "CapturedPieceList.h" // Include CapturedPieceList header
 
 using namespace std;
 
@@ -24,6 +24,8 @@ public:
     {
         return !isWhite;
     }
+ // New method to get the type of the piece (e.g., "King", "Queen")
+    virtual string getType() const = 0;  // Pure virtual function, must be implemented by derived classes
 
     bool getHasMoved() const { return hasMoved; }
     void setHasMoved(bool moved) { hasMoved = moved; }
@@ -39,8 +41,10 @@ class King : public Piece
 public:
     King(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'K' : 'k'; }
+    string getType() const override { return "King"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Queen class
 class Queen : public Piece
@@ -48,8 +52,10 @@ class Queen : public Piece
 public:
     Queen(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'Q' : 'q'; }
+    string getType() const override { return "Queen"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Rook class
 class Rook : public Piece
@@ -57,8 +63,10 @@ class Rook : public Piece
 public:
     Rook(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'R' : 'r'; }
+    string getType() const override { return "Rook"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Bishop class
 class Bishop : public Piece
@@ -66,8 +74,10 @@ class Bishop : public Piece
 public:
     Bishop(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'B' : 'b'; }
+    string getType() const override { return "Bishop"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Knight class
 class Knight : public Piece
@@ -75,8 +85,10 @@ class Knight : public Piece
 public:
     Knight(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'N' : 'n'; }
+    string getType() const override { return "Knight"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Pawn class
 class Pawn : public Piece
@@ -84,8 +96,10 @@ class Pawn : public Piece
 public:
     Pawn(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'P' : 'p'; }
+    string getType() const override { return "Pawn"; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
 };
+
 
 // Class representing the Chessboard
 class Board
@@ -99,6 +113,7 @@ private:
 public:
     queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
     Board(); // Constructor
+    CapturedPieceList capturedPieces;
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
     void printBoard() const;                                            // Prints the board to the console
@@ -119,6 +134,12 @@ public:
  //   bool isCheckmate(bool isWhite);                // Checks if the player of the given color is in checkmate
  //   bool isStalemate(bool isWhite);                // Checks if the player of the given color is in stalemate
     bool hasLegalMoves(bool isWhite);              // Helper function to check if the player has any legal moves
+
+    void capturePiece(const std::string& pieceType, bool isBlack, const std::string& position);
+    void restoreCapturedPiece();
+    void printCapturedPieces() const;
+    // New method to convert coordinates to chessboard position
+    string convertToPosition(int x, int y);
 };
 
 // Converts chess notation (e.g., "e2") to board indices

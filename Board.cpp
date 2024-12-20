@@ -2,6 +2,9 @@
 #include <memory>
 #include<stack>
 #include <queue>
+#include "Board.h"
+#include "CapturedPieceList.h"
+#include <iostream>
 
 queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
@@ -657,6 +660,25 @@ bool Board::isSquareUnderAttack(int x, int y, bool byWhite) const
         }
     }
     return false;
+}
+
+void Board::capturePiece(const std::string& pieceType, bool isBlack, const std::string& position) {
+    capturedPieces.capturePiece(pieceType, isBlack, position);
+}
+
+void Board::restoreCapturedPiece() {
+    capturedPieces.restoreLastCapturedPiece();
+}
+
+void Board::printCapturedPieces() const {
+    capturedPieces.printCapturedPieces();
+}
+
+string Board::convertToPosition(int x, int y) {
+    // Assuming x is the column (0-7) and y is the row (0-7)
+    char column = 'a' + x;  // Convert column number to letter ('a' to 'h')
+    char row = '8' - y;     // Convert row number to 8-1 (reverse order)
+    return string(1, column) + row;
 }
 
 // bool Board::isCheckmate(bool isWhite)

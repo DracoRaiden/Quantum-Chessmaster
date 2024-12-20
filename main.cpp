@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Board.h"
+#include "CapturedPieceList.h" // Include the CapturedPieceList header
 using namespace std;
 
 int main()
@@ -13,8 +14,6 @@ int main()
 
     while (true)
     {
-
-
         cout << "Welcome to Chess (Player vs. Player)!" << endl;
         chessBoard.printBoard();
 
@@ -24,7 +23,7 @@ int main()
             cout << "Player " << currentPlayer << "'s king is in check!" << endl;
         }
 
-        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo the undone move, or 'quit' to exit: ";
+        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo the undone move, 'captured' to show captured pieces, or 'quit' to exit: ";
         cin >> command;
 
         if (command == "quit")
@@ -54,6 +53,12 @@ int main()
             chessBoard.redoMove();
             currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
             cout << "Move has been redone!" << endl;
+            continue;
+        }
+        else if (command == "captured")
+        {
+            cout << "Captured pieces: " << endl;
+            chessBoard.printCapturedPieces(); // Print captured pieces
             continue;
         }
 
@@ -87,6 +92,16 @@ int main()
 
             if (chessBoard.movePiece(startX, startY, endX, endY))
             {
+                // If a piece is captured, track it
+                shared_ptr<Piece> capturedPiece = chessBoard.getPiece(endX, endY);
+                if (capturedPiece != nullptr)
+                {
+                    string capturedPieceType = capturedPiece->getType();
+                    bool capturedPieceColor = capturedPiece->isBlack();
+                    string capturedPiecePosition = chessBoard.convertToPosition(endX, endY);
+                    chessBoard.capturePiece(capturedPieceType, capturedPieceColor, capturedPiecePosition);
+                }
+
                 firstMoveMade = true; // Mark that the first move has been made
                 currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns after a successful move
             }
