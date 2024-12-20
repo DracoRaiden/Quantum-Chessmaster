@@ -214,47 +214,73 @@ void AI::generatePossibleMoves(const Board &board)
 
 pair<pair<int, int>, pair<int, int>> AI::selectMove(const Board &board)
 {
+    // Step 1: Generate possible moves
     generatePossibleMoves(board);
 
+    // Step 2: Retrieve all possible moves
     vector<pair<pair<int, int>, pair<int, int>>> moves = possibleMoves.getAllMoves();
     if (moves.empty())
     {
-        cout << "No moves available for AI. Returning default." << endl;
+        // cout << "No moves available for AI. Returning default." << endl;
         return {{-1, -1}, {-1, -1}}; // Handle case where AI has no valid moves
     }
 
-    // Sort moves by priority (optional optimization, e.g., capturing moves first)
-    sortMovesByPriority(moves, board);
+    // cout << "Possible moves:\n";
+    // for (const auto &move : moves)
+    // {
+    //     cout << "Move: " << move.first.first << "," << move.first.second
+    //          << " -> " << move.second.first << "," << move.second.second << endl;
+    // }
 
-    // If this is the first move, pick the highest-priority move
+    // Step 3: Sort moves by priority (optional optimization)
+    sortMovesByPriority(moves, board);
+    // cout << "Moves sorted by priority (if applicable):\n";
+    // for (const auto &move : moves)
+    // {
+    //     cout << "Sorted Move: " << move.first.first << "," << move.first.second
+    //          << " -> " << move.second.first << "," << move.second.second << endl;
+    // }
+
+    // Step 4: If this is the first move, pick the highest-priority move
     if (moveHistory.isEmpty())
     {
         auto firstMove = moves.front();
         moveHistory.addMove(firstMove); // Assuming `addMove` expects pair<pair<int, int>, pair<int, int>>
-        cout << "First move selected: " << firstMove.first.first << "," << firstMove.first.second
-             << " -> " << firstMove.second.first << "," << firstMove.second.second << endl;
+        // cout << "First move selected: " << firstMove.first.first << "," << firstMove.first.second
+        //      << " -> " << firstMove.second.first << "," << firstMove.second.second << endl;
         return firstMove;
     }
 
-    // Check for a move not recently made
+    // Step 5: Check for a move not recently made
+    // cout << "Checking for a move not recently made...\n";
     for (const auto &move : moves)
     {
+        // cout << "Checking move: " << move.first.first << "," << move.first.second
+        //      << " -> " << move.second.first << "," << move.second.second << endl;
+        
         if (!moveHistory.isMoveRecent(move)) // Assuming `isMoveRecent` expects pair<pair<int, int>, pair<int, int>>
         {
             moveHistory.addMove(move); // Assuming `addMove` expects pair<pair<int, int>, pair<int, int>>
-            cout << "Move selected: " << move.first.first << "," << move.first.second
-                 << " -> " << move.second.first << "," << move.second.second << endl;
+            // cout << "Move selected: " << move.first.first << "," << move.first.second
+            //      << " -> " << move.second.first << "," << move.second.second << endl;
             return move;
+        }
+        else
+        {
+            // cout << "Move recently made, skipping: " << move.first.first << "," << move.first.second
+            //      << " -> " << move.second.first << "," << move.second.second << endl;
         }
     }
 
-    // No non-recent moves found, pick a random valid move
+    // Step 6: No non-recent moves found, pick a random valid move
+    // cout << "No non-recent moves found. Picking a random valid move...\n";
     auto randomMove = getRandomMove(possibleMoves);
     moveHistory.addMove(randomMove); // Assuming `addMove` expects pair<pair<int, int>, pair<int, int>>
-    cout << "Random move selected: " << randomMove.first.first << "," << randomMove.first.second
-         << " -> " << randomMove.second.first << "," << randomMove.second.second << endl;
+    // cout << "Random move selected: " << randomMove.first.first << "," << randomMove.first.second
+    //      << " -> " << randomMove.second.first << "," << randomMove.second.second << endl;
     return randomMove;
 }
+
 
 bool AI::isMoveValid(const Move &move, Board &board)
 {
