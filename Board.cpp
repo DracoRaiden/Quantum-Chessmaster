@@ -230,6 +230,7 @@ bool Board::isPathClear(int startX, int startY, int endX, int endY) const
 
     return true; // Path is clear
 }
+
 bool Board::movePiece(int startX, int startY, int endX, int endY)
 {
     // Save the current board state before making the move (for undo functionality)
@@ -342,6 +343,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
 
     return true;
 }
+
 
 shared_ptr<Piece> Board::getPiece(int row, int col) const
 {
@@ -662,8 +664,8 @@ bool Board::isSquareUnderAttack(int x, int y, bool byWhite) const
     return false;
 }
 
-void Board::capturePiece(const std::string& pieceType, bool isBlack, const std::string& position) {
-    capturedPieces.capturePiece(pieceType, isBlack, position);
+void Board::capturePiece(const std::string& pieceType, bool isBlack) {
+    capturedPieces.capturePiece(pieceType, isBlack);
 }
 
 void Board::restoreCapturedPiece() {

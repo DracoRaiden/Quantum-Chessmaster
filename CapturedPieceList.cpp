@@ -1,9 +1,18 @@
 #include "CapturedPieceList.h"
 
-CapturedPieceList::CapturedPieceList() : head(nullptr), tail(nullptr) {}
+CapturedPieceList::CapturedPieceList() 
+    : blackHead(nullptr), blackTail(nullptr), whiteHead(nullptr), whiteTail(nullptr) {}
 
 CapturedPieceList::~CapturedPieceList() {
-    CapturedPieceNode* current = head;
+    // Clean up memory by deleting all nodes in the list for black and white pieces
+    CapturedPieceNode* current = blackHead;
+    while (current) {
+        CapturedPieceNode* temp = current;
+        current = current->next;
+        delete temp;
+    }
+
+    current = whiteHead;
     while (current) {
         CapturedPieceNode* temp = current;
         current = current->next;
@@ -11,51 +20,95 @@ CapturedPieceList::~CapturedPieceList() {
     }
 }
 
-void CapturedPieceList::capturePiece(const std::string& pieceType, bool isBlack, const std::string& position) {
-    CapturedPieceNode* newPiece = new CapturedPieceNode(pieceType, isBlack, position);
-    if (!tail) {  // If the list is empty
-        head = tail = newPiece;
+void CapturedPieceList::capturePiece(const std::string& pieceType, bool isBlack) {
+    CapturedPieceNode* newPiece = new CapturedPieceNode(pieceType, isBlack);
+
+    if (isBlack) {
+        if (!blackTail) {  // If the list for black is empty
+            blackHead = blackTail = newPiece;
+        } else {
+            blackTail->next = newPiece;
+            newPiece->prev = blackTail;
+            blackTail = newPiece;
+        }
     } else {
-        tail->next = newPiece;
-        newPiece->prev = tail;
-        tail = newPiece;
+        if (!whiteTail) {  // If the list for white is empty
+            whiteHead = whiteTail = newPiece;
+        } else {
+            whiteTail->next = newPiece;
+            newPiece->prev = whiteTail;
+            whiteTail = newPiece;
+        }
     }
 }
 
 void CapturedPieceList::restoreLastCapturedPiece() {
-    if (!tail) {
+    if (!blackTail && !whiteTail) {
         std::cout << "No captured pieces to restore!" << std::endl;
         return;
     }
 
-    // Get the last captured piece
-    CapturedPieceNode* lastCaptured = tail;
-    std::cout << "Restoring piece: " << lastCaptured->pieceType << " at " << lastCaptured->position << std::endl;
+    // Restore the most recent captured piece (starting with black)
+    if (blackTail) {
+        CapturedPieceNode* lastCaptured = blackTail;
+        std::cout << "Restoring piece: " << lastCaptured->pieceType << " (Black)" << std::endl;
 
-    // Restore it by removing it from the list (you can implement piece restoration logic here)
-    if (head == tail) {  // If there's only one node
-        delete head;
-        head = tail = nullptr;
-    } else {
-        tail = tail->prev;
-        delete lastCaptured;
-        tail->next = nullptr;
+        if (blackHead == blackTail) {  // If there's only one node for black
+            delete blackHead;
+            blackHead = blackTail = nullptr;
+        } else {
+            blackTail = blackTail->prev;
+            delete lastCaptured;
+            blackTail->next = nullptr;
+        }
+    }
+
+    // If no black pieces remain, restore white pieces if any
+    else if (whiteTail) {
+        CapturedPieceNode* lastCaptured = whiteTail;
+        std::cout << "Restoring piece: " << lastCaptured->pieceType << " (White)" << std::endl;
+
+        if (whiteHead == whiteTail) {  // If there's only one node for white
+            delete whiteHead;
+            whiteHead = whiteTail = nullptr;
+        } else {
+            whiteTail = whiteTail->prev;
+            delete lastCaptured;
+            whiteTail->next = nullptr;
+        }
     }
 }
 
 void CapturedPieceList::printCapturedPieces() const {
-    if (!head) {
+    if (!blackHead && !whiteHead) {
+        std::cout << "Captured pieces:" << std::endl;
         std::cout << "No captured pieces!" << std::endl;
         return;
     }
 
-    CapturedPieceNode* current = head;
+    std::cout << "BLACK CAPTURED PIECES: ";
+    CapturedPieceNode* current = blackHead;
+    bool first = true;
     while (current) {
-        std::cout << current->pieceType << " (" << (current->isBlack ? "Black" : "White") << ") captured at " << current->position << std::endl;
+        if (!first) std::cout << ", ";
+        std::cout << current->pieceType;
         current = current->next;
+        first = false;
     }
+    std::cout << std::endl;
+
+    std::cout << "WHITE CAPTURED PIECES: ";
+    current = whiteHead;
+    first = true;
+    while (current) {
+        if (!first) std::cout << ", ";
+        std::cout << current->pieceType;
+        current = current->next;
+        first = false;
+    }
+    std::cout << std::endl;
 }
 
 bool CapturedPieceList::isCapturedPieceListEmpty() const {
-    return head == nullptr;
+    return !blackHead && !whiteHead;
 }

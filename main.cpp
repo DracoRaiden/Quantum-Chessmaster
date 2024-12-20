@@ -98,8 +98,7 @@ int main()
                 {
                     string capturedPieceType = capturedPiece->getType();
                     bool capturedPieceColor = capturedPiece->isBlack();
-                    string capturedPiecePosition = chessBoard.convertToPosition(endX, endY);
-                    chessBoard.capturePiece(capturedPieceType, capturedPieceColor, capturedPiecePosition);
+                    chessBoard.capturePiece(capturedPieceType, capturedPieceColor);
                 }
 
                 firstMoveMade = true; // Mark that the first move has been made

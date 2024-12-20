@@ -135,7 +135,7 @@ public:
  //   bool isStalemate(bool isWhite);                // Checks if the player of the given color is in stalemate
     bool hasLegalMoves(bool isWhite);              // Helper function to check if the player has any legal moves
 
-    void capturePiece(const std::string& pieceType, bool isBlack, const std::string& position);
+    void capturePiece(const std::string& pieceType, bool isBlack);
     void restoreCapturedPiece();
     void printCapturedPieces() const;
     // New method to convert coordinates to chessboard position

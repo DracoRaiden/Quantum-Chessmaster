@@ -4,29 +4,32 @@
 #include <iostream>
 #include <string>
 
+// Structure for a node in the captured pieces list
 struct CapturedPieceNode {
     std::string pieceType;
     bool isBlack; // True if black, false if white
-    std::string position;
     CapturedPieceNode* prev;
     CapturedPieceNode* next;
 
-    CapturedPieceNode(const std::string& type, bool color, const std::string& pos)
-        : pieceType(type), isBlack(color), position(pos), prev(nullptr), next(nullptr) {}
+    // Constructor to initialize the node with piece type and color
+    CapturedPieceNode(const std::string& type, bool color)
+        : pieceType(type), isBlack(color), prev(nullptr), next(nullptr) {}
 };
 
 class CapturedPieceList {
 public:
-    CapturedPieceList();
-    ~CapturedPieceList();
-    void capturePiece(const std::string& pieceType, bool isBlack, const std::string& position);
-    void restoreLastCapturedPiece();
-    void printCapturedPieces() const;
-    bool isCapturedPieceListEmpty() const;
+    CapturedPieceList();                      // Constructor
+    ~CapturedPieceList();                     // Destructor
+    void capturePiece(const std::string& pieceType, bool isBlack); // Capture a piece
+    void restoreLastCapturedPiece();          // Restore the last captured piece
+    void printCapturedPieces() const;         // Print captured pieces
+    bool isCapturedPieceListEmpty() const;    // Check if the captured list is empty
 
 private:
-    CapturedPieceNode* head;
-    CapturedPieceNode* tail;
+    CapturedPieceNode* blackHead;             // Head for black captured pieces list
+    CapturedPieceNode* blackTail;             // Tail for black captured pieces list
+    CapturedPieceNode* whiteHead;             // Head for white captured pieces list
+    CapturedPieceNode* whiteTail;             // Tail for white captured pieces list
 };
 
 #endif // CAPTUREDPIECELIST_H
