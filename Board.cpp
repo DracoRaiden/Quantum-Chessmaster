@@ -16,6 +16,7 @@ const string WHITE_TEXT = "\033[97m";
 const string BLACK_TEXT = "\033[30m";
 
 LastMove lastMove; // Definition (with initialization)
+queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
 // Board Implementation
 Board::Board()
@@ -659,6 +660,28 @@ void Board::undoMove()
     {
         // If no moves are available to undo, print an error or handle it.
         cout << "No moves to undo!" << endl;
+    }
+}
+
+bool Board::redoMove() {
+    if (!redoHistory.empty()) {
+        // Save the current state to history
+        history.push(board);
+
+        // Restore the next state from redoHistory
+        vector<vector<shared_ptr<Piece>>> nextState = redoHistory.front();
+        redoHistory.pop();
+
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 8; ++col) {
+                board[row][col] = nextState[row][col];
+            }
+        }
+        // cout << "Move redone!" << endl;
+        return true;
+    } else {
+        // cout << "No moves to redo!" << endl;
+        return false;
     }
 }
 

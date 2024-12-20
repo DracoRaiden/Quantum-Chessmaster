@@ -27,7 +27,7 @@ public:
     void printBoard() const;                                            // Prints the board to the console
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
-    void buildAdjacencyList(vector<vector<int>>& adjList) const;
+    // void buildAdjacencyList(vector<vector<int>>& adjList) const;
     bool movePiece(int startX, int startY, int endX, int endY);         // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
@@ -35,13 +35,14 @@ public:
     bool canCastle(int startX, int startY, int endX, int endY) const;
     // Undo the last move
     void undoMove();
+    bool redoMove();
     // Function to track the current state of the board and push it to the history stack
     void saveHistory();
     vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
-    bool isMoveRepeated(const Move &move);
-    void markMoveAsMade(const Move &move);
-    Move calculateAIMove();                          // Function to calculate AI's move
-    vector<Move> getLegalMovesForPlayer(int player); // Get all legal moves for a player
+    // bool isMoveRepeated(const Move &move);
+    // void markMoveAsMade(const Move &move);
+    // Move calculateAIMove();                          // Function to calculate AI's move
+    // vector<Move> getLegalMovesForPlayer(int player); // Get all legal moves for a player
 };
 
 // Converts chess notation (e.g., "e2") to board indices

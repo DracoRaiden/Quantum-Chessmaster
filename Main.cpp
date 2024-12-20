@@ -12,9 +12,10 @@ int main()
     int moveHistorySize = 100;
     AI aiPlayer(moveHistorySize); // moveHistorySize is the size of the circular queue for move history
     string input, target, command;
-    int gameMode = 0;      // 1 for Player vs Player, 2 for Player vs AI
-    int currentPlayer = 1; // 1 for Player 1 (White), 2 for Player 2 (Black)
-
+    int gameMode = 0;           // 1 for Player vs Player, 2 for Player vs AI
+    int currentPlayer = 1;      // 1 for Player 1 (White), 2 for Player 2 (Black)
+    bool firstMoveMade = false; // Track if the first move has been made
+    bool redoMoveMade;
     cout << "Welcome to Chess!" << endl;
     cout << "Select Game Mode:\n1. Player vs Player\n2. Player vs AI\nEnter 1 or 2: ";
     cin >> gameMode;
@@ -47,7 +48,7 @@ int main()
             continue;          // Skip player input when AI plays
         }
 
-        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, or 'quit' to exit: ";
+        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo undone move, or 'quit' to exit: ";
         cin >> command;
         if (command == "quit")
         {
@@ -57,10 +58,27 @@ int main()
 
         if (command == "undo")
         {
+
             chessBoard.undoMove();                        // Undo the last move
             currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch back the player after undo
             cout << "Last move has been undone!" << endl;
             continue;
+        }
+
+        else if (command == "redo")
+        {
+            if (chessBoard.redoMove())
+            {
+                cout << "Last undone move has been redone!" << endl;
+                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
+                cout << "Move has been redone!" << endl;
+                continue;
+            }
+
+            else{
+                cout << "No moves to redo!" << endl;
+                continue;
+            }
         }
 
         cin >> target; // Read the target position
@@ -93,6 +111,7 @@ int main()
 
             if (chessBoard.movePiece(startX, startY, endX, endY))
             {
+                firstMoveMade = true;
                 currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns after a successful move
             }
             else
