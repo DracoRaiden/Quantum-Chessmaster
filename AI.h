@@ -19,6 +19,7 @@ public:
 
     bool isMoveValid(const Move& move);
     Move generateMove(Board &board); // Function to generate the next move
+vector<Move> getLegalMovesForPlayer(int color);
 
     // Optional: Functions for implementing more advanced AI logic later
     Move minimax(Board &board);

@@ -27,6 +27,9 @@ public:
     void setHasMoved(bool moved) { hasMoved = moved; }
     virtual char getSymbol() const = 0;                                             // Pure virtual function for symbol
     virtual bool isValidMove(int startX, int startY, int endX, int endY) const = 0; // Pure virtual function for move validation
+    // Pure virtual function to get legal moves for a piece
+    virtual std::vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const = 0;
+
     bool getColor() const { return isWhite; }                                       // Returns the piece color
 };
 
@@ -44,7 +47,9 @@ public:
     King(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'K' : 'k'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
+    std::vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    
+    };
 
 // Queen class
 class Queen : public Piece
@@ -53,6 +58,8 @@ public:
     Queen(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'Q' : 'q'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
+    vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    
 };
 
 // Rook class
@@ -62,6 +69,8 @@ public:
     Rook(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'R' : 'r'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
+    vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    
 };
 
 // Bishop class
@@ -71,6 +80,8 @@ public:
     Bishop(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'B' : 'b'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
+    vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    
 };
 
 // Knight class
@@ -80,6 +91,8 @@ public:
     Knight(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'N' : 'n'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
+    vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    
 };
 
 // Pawn class
@@ -89,6 +102,8 @@ public:
     Pawn(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'P' : 'p'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
+    vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+   
 };
 
 // Class representing the Chessboard

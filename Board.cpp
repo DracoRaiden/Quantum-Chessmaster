@@ -919,3 +919,174 @@ void Board::undoMove()
 //     // No valid moves found
 //     return {-1, -1, -1, -1};
 // }
+
+// Board method to get possible moves for a piece at a given position
+vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
+    vector<pair<int, int>> moves;
+
+    // Check if the square is occupied
+    if (!isSquareOccupied(startX, startY)) {
+        return moves;  // Return an empty list if no piece exists
+    }
+
+    // Retrieve the piece at the specified position
+    shared_ptr<Piece> piece = getPiece(startX, startY);
+    if (piece) {
+        moves = piece->getLegalMoves(startX, startY, *this);
+    }
+
+    return moves;
+}
+
+// King piece movement logic
+vector<pair<int, int>> King::getLegalMoves(int startX, int startY, const Board& board) const {
+    vector<std::pair<int, int>> moves;
+
+    for (int dx : {-1, 0, 1}) {
+        for (int dy : {-1, 0, 1}) {
+            if (dx == 0 && dy == 0)
+                continue;
+
+            int newX = startX + dx, newY = startY + dy;
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite) {
+                    moves.push_back({newX, newY});
+                }
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Rook piece movement logic
+vector<pair<int, int>> Rook::getLegalMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Rook can move horizontally or vertically
+    vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (auto& dir : directions) {
+        int newX = startX, newY = startY;
+        while (true) {
+            newX += dir.first;
+            newY += dir.second;
+
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                break;
+
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            } else {
+                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+                    moves.push_back({newX, newY});
+                }
+                break;
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Bishop piece movement logic
+vector<pair<int, int>> Bishop::getLegalMoves(int startX, int startY, const Board& board) const {
+    std::vector<std::pair<int, int>> moves;
+
+    // Bishop moves diagonally
+    vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+    for (auto& dir : directions) {
+        int newX = startX, newY = startY;
+        while (true) {
+            newX += dir.first;
+            newY += dir.second;
+
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                break;
+
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            } else {
+                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+                    moves.push_back({newX, newY});
+                }
+                break;
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Queen piece movement logic
+vector<pair<int, int>> Queen::getLegalMoves(int startX, int startY, const Board& board) const {
+    std::vector<std::pair<int, int>> moves;
+
+    // Queen can move like both a Rook and a Bishop
+    vector<pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+    
+    for (auto& dir : directions) {
+        int newX = startX, newY = startY;
+        while (true) {
+            newX += dir.first;
+            newY += dir.second;
+
+            if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+                break;
+
+            if (!board.isSquareOccupied(newX, newY)) {
+                moves.push_back({newX, newY});
+            } else {
+                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+                    moves.push_back({newX, newY});
+                }
+                break;
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Knight piece movement logic
+vector<pair<int, int>> Knight::getLegalMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Knight moves in an 'L' shape
+    vector<pair<int, int>> directions = {
+        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+
+    for (auto& dir : directions) {
+        int newX = startX + dir.first, newY = startY + dir.second;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+            if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite) {
+                moves.push_back({newX, newY});
+            }
+        }
+    }
+
+    return moves;
+}
+
+// Pawn piece movement logic
+vector<pair<int, int>> Pawn::getLegalMoves(int startX, int startY, const Board& board) const {
+    vector<pair<int, int>> moves;
+
+    // Pawns move forward, but can attack diagonally
+    int direction = (board.getPiece(startX, startY)->getColor() == 'w') ? -1 : 1; // White moves up, Black moves down
+
+    // Move forward by one square
+    if (!board.isSquareOccupied(startX + direction, startY)) {
+        moves.push_back({startX + direction, startY});
+    }
+
+    // Attack diagonally
+    if (startY > 0 && board.isSquareOccupied(startX + direction, startY - 1) && board.getPiece(startX + direction, startY - 1)->getColor() != color) {
+        moves.push_back({startX + direction, startY - 1});
+    }
+    if (startY < 7 && board.isSquareOccupied(startX + direction, startY + 1) && board.getPiece(startX + direction, startY + 1)->getColor() != color) {
+        moves.push_back({startX + direction, startY + 1});
+    }
+
+    return moves;
+}

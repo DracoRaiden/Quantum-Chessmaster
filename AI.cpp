@@ -10,7 +10,48 @@ using namespace std;
 AI::AI(Board& b, int playerColor) : board(b), playerColor(playerColor) {
     // Seed the random number generator to get different results each time
     srand(time(nullptr));
+    
 }
+
+vector<Move> AI::getLegalMovesForPlayer(int color) {
+    vector<Move> legalMoves;
+
+    // Iterate over the board to find all pieces of the specified color
+    for (int x = 0; x < 8; ++x) {  // Assuming an 8x8 board
+        for (int y = 0; y < 8; ++y) {
+            shared_ptr<Piece> piece = board.getPiece(x, y);
+            
+            // Skip if there is no piece or the piece is not owned by the AI
+            if (!piece || piece->getColor() != color) {
+                continue;
+            }
+
+            // Get the legal moves for this piece
+            vector<Move> pieceMoves = piece->getLegalMoves(x, y);
+
+            // Check each move for legality (whether it results in check)
+            for (const Move& move : pieceMoves) {
+                // Make the move temporarily and check if it causes the player's king to be in check
+                if (!isKingInCheck(color)) {
+                    legalMoves.push_back(move);
+                }
+            }
+        }
+    }
+
+    return legalMoves;
+}
+
+// bool AI::isKingInCheck(int color) {
+//     // Check if the king of the given color is in check after a move
+//     // This will require a method to simulate the move and check the king's safety
+//     // You can implement this by temporarily making the move and checking the board state
+
+//     // Example: Check if the king's position is under attack
+//     // (You'll need to implement this logic in your Board or Piece class)
+//     // For now, we assume you have a `isKingInCheck` method in the Board class
+//     return board.isKingInCheck(color);
+// }
 
 // Function to generate a random move for the AI
 Move AI::generateMove(Board& board) {
