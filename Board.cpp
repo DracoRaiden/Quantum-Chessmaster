@@ -1,9 +1,11 @@
 #include "Board.h"
 #include <memory>
+#include <list>
+#include <queue>
 #include <stack>
+#include <unordered_map>
 #include <cstdlib>
-#include<algorithm>
-#include<random>
+#include <algorithm>
 
 // ANSI color codes
 const string RESET = "\033[0m";
@@ -812,6 +814,12 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
                     // 2. The path is clear (for sliding pieces like rooks, bishops, and queens).
                     if (movePiece(startX, startY, endX, endY))
                     {
+
+                        if (!isSquareOccupied(startX, startY) || !getPiece(startX, startY))
+                        {
+                            continue; // Skip invalid starting positions
+                        }
+
                         legalMoves.push_back({startX, startY, endX, endY});
                     }
                 }
@@ -822,37 +830,86 @@ vector<Move> Board::getLegalMovesForPlayer(int player)
     return legalMoves;
 }
 
-vector<Move> lastAIMoves;
+stack<Move> lastAIMoves;
 
-bool Board::isMoveRepeated(const Move& move) {
-    return std::find(lastAIMoves.begin(), lastAIMoves.end(), move) != lastAIMoves.end();
-}
+bool Board::isMoveRepeated(const Move &move)
+{
+    stack<Move> tempStack = lastAIMoves; // Copy the stack
 
-void Board::markMoveAsMade(const Move& move) {
-    if (lastAIMoves.size() >= 5) {
-        lastAIMoves.erase(lastAIMoves.begin());
+    while (!tempStack.empty())
+    {
+        const Move &lastMove = tempStack.top();
+        if (lastMove.startX == move.startX &&
+            lastMove.startY == move.startY &&
+            lastMove.endX == move.endX &&
+            lastMove.endY == move.endY)
+        {
+            return true;
+        }
+        tempStack.pop(); // Move to the next item
     }
-    lastAIMoves.push_back(move);
+    return false;
 }
 
+void Board::markMoveAsMade(const Move &move)
+{
+    // Temporary stack to manage a fixed size of 5 moves
+    stack<Move> tempStack;
 
-Move Board::calculateAIMove() {
+    // Transfer elements to the temporary stack (up to 4 moves)
+    while (!lastAIMoves.empty() && tempStack.size() < 4)
+    {
+        tempStack.push(lastAIMoves.top());
+        lastAIMoves.pop();
+    }
+
+    // Clear the original stack
+    while (!lastAIMoves.empty())
+    {
+        lastAIMoves.pop();
+    }
+
+    // Push back the moves into lastAIMoves in the correct order
+    while (!tempStack.empty())
+    {
+        lastAIMoves.push(tempStack.top());
+        tempStack.pop();
+    }
+
+    // Push the new move onto the stack
+    lastAIMoves.push(move);
+}
+
+Move Board::calculateAIMove()
+{
     vector<Move> possibleMoves = getLegalMovesForPlayer(false); // Black (AI)
 
-    // Initialize a random number generator
-    random_device rd;
-    mt19937 g(rd());
+    if (possibleMoves.empty())
+    {
+        // No moves available
+        return {-1, -1, -1, -1};
+    }
 
-    // Shuffle the possible moves
-    shuffle(possibleMoves.begin(), possibleMoves.end(), g);
+    // Seed the random number generator
+    srand(static_cast<unsigned>(time(nullptr)));
 
-    for (const Move& move : possibleMoves) {
-        if (movePiece(move.startX, move.startY, move.endX, move.endY)) {
+    // Shuffle the possible moves using simple random logic
+    for (size_t i = 0; i < possibleMoves.size(); ++i)
+    {
+        int randomIndex = rand() % possibleMoves.size();
+        swap(possibleMoves[i], possibleMoves[randomIndex]);
+    }
+
+    for (const Move &move : possibleMoves)
+    {
+        if (movePiece(move.startX, move.startY, move.endX, move.endY))
+        {
             // Undo the move to maintain game state
             undoMove();
 
-            // Ensure the move doesn't repeat previous actions
-            if (!isMoveRepeated(move)) {
+            // Ensure the move isn't repeated
+            if (!isMoveRepeated(move))
+            {
                 markMoveAsMade(move);
                 return move;
             }
