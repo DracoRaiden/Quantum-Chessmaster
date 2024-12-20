@@ -1,108 +1,158 @@
 #include "AI.h"
 #include "Board.h"
-#include <cstdlib>  // For random number generation
-#include <ctime>    // For seeding the random number generator
+#include "Piece.h"
+#include <ctime>
+#include <cstdlib>
 #include <iostream>
+#include <algorithm>
+#include <string>
 
-using namespace std;
+MoveList::MoveList() : head(nullptr) {}
 
-// Constructor that initializes the AI with the player's color and the game board
-AI::AI(Board& b, int playerColor) : board(b), playerColor(playerColor) {
-    // Seed the random number generator to get different results each time
-    srand(time(nullptr));
-    
+void MoveList::addMove(pair<int, int> move)
+{
+    MoveNode *newNode = new MoveNode(move);
+    newNode->next = head; // Insert at the head of the list
+    head = newNode;
 }
 
-vector<Move> AI::getLegalMovesForPlayer(int color) {
-    vector<Move> legalMoves;
+vector<pair<int, int>> MoveList::getAllMoves()
+{
+    vector<pair<int, int>> moves;
+    MoveNode *current = head;
+    while (current != nullptr)
+    {
+        moves.push_back(current->move); // Add move to the vector
+        current = current->next;        // Move to the next node
+    }
+    return moves;
+}
 
-    // Iterate over the board to find all pieces of the specified color
-    for (int x = 0; x < 8; ++x) {  // Assuming an 8x8 board
-        for (int y = 0; y < 8; ++y) {
-            shared_ptr<Piece> piece = board.getPiece(x, y);
-            
-            // Skip if there is no piece or the piece is not owned by the AI
-            if (!piece || piece->getColor() != color) {
-                continue;
-            }
+MoveList::~MoveList()
+{
+    MoveNode *current = head;
+    while (current != nullptr)
+    {
+        MoveNode *nextNode = current->next;
+        delete current; // Clean up the current node
+        current = nextNode;
+    }
+}
 
-            // Get the legal moves for this piece
-            vector<Move> pieceMoves = piece->getLegalMoves(x, y);
+MoveNode::MoveNode(std::pair<int, int> move) : move(move), next(nullptr) {}
 
-            // Check each move for legality (whether it results in check)
-            for (const Move& move : pieceMoves) {
-                // Make the move temporarily and check if it causes the player's king to be in check
-                if (!isKingInCheck(color)) {
-                    legalMoves.push_back(move);
-                }
-            }
+CircularQueue::CircularQueue(int size) : size(size) {}
+
+bool CircularQueue::isEmpty() const
+{
+    return q.empty(); // Return true if the queue is empty
+}
+
+bool CircularQueue::isMoveRecent(std::pair<int, int> move)
+{
+    string moveStr = to_string(move.first) + "," + to_string(move.second);
+    return seenMoves.find(moveStr) != seenMoves.end();
+}
+
+void CircularQueue::addMove(std::pair<int, int> move)
+{
+    if (q.size() == size)
+    {
+        std::string oldMoveStr = std::to_string(q.front().first) + "," + std::to_string(q.front().second);
+        seenMoves.erase(oldMoveStr);
+        q.pop();
+    }
+    q.push(move);
+    seenMoves.insert(std::to_string(move.first) + "," + std::to_string(move.second));
+}
+
+AI::AI(int moveHistorySize) : moveHistory(moveHistorySize) {}
+
+void AI::generatePossibleMoves(const Board &board)
+{
+    // Generate all possible legal moves for the current AI piece
+    // Example for Pawn, Queen, etc. (depends on piece type)
+    // Add all possible moves to `possibleMoves` linked list
+}
+
+pair<int, int> AI::getRandomMove(MoveList &moveList)
+{
+    vector<pair<int, int>> moves = moveList.getAllMoves();
+
+    // Hash map to shuffle the moves
+    std::unordered_map<int, std::pair<int, int>> hashedMoves;
+    for (const auto &move : moves)
+    {
+        int hashValue = std::hash<std::string>{}(std::to_string(move.first) + "," + std::to_string(move.second));
+        hashedMoves[hashValue] = move;
+    }
+
+    // Randomly pick a move based on hash values
+    srand(time(0));
+    auto it = hashedMoves.begin();
+    std::advance(it, rand() % hashedMoves.size());
+    return it->second;
+}
+
+void AI::exploreMovesBFS(pair<int, int> startMove, const Board &board)
+{
+    queue<pair<int, int>> q;
+    q.push(startMove);
+
+    while (!q.empty())
+    {
+        auto currentMove = q.front();
+        q.pop();
+        cout << "Exploring move: (" << currentMove.first << ", " << currentMove.second << ")\n";
+        shared_ptr<Piece> currentPiece = board.getPiece(currentMove.first, currentMove.second); // Get pointer to the piece
+
+        // Get all legal moves from currentMove and add to queue
+        MoveList legalMoves;
+        // (Assuming you have a method getLegalMoves that returns a list of moves)
+        vector<pair<int, int>> legalMoveList = currentPiece->getLegalMoves(currentMove.first, currentMove.second);
+        for (const auto &move : legalMoveList)
+        {
+            legalMoves.addMove(move);
+            q.push(move);
+        }
+    }
+}
+
+void AI::sortMovesByPriority(vector<pair<int, int>> &moves, const Board &board)
+{
+    // Here, we can define custom logic to assign priority to moves
+    // For example, moves that capture an opponent piece can have a higher priority
+    std::sort(moves.begin(), moves.end(), [](const std::pair<int, int> &a, const std::pair<int, int> &b)
+              {
+                  // Example: prioritize capturing moves (you can adjust this logic)
+                  return a.first < b.first; // Placeholder sorting logic
+              });
+}
+
+pair<int, int> AI::selectMove(const Board& board) {
+    generatePossibleMoves(board);
+
+    // Sort moves by priority (optional)
+    vector<std::pair<int, int>> moves = possibleMoves.getAllMoves();
+    sortMovesByPriority(moves, board);
+
+    // If there are no moves in the history (first move of the game)
+    if (moveHistory.isEmpty()) {
+        // Just return the first move (no history to check)
+        std::pair<int, int> firstMove = moves.front();
+        moveHistory.addMove(firstMove);  // Store the move in history
+        return firstMove;
+    }
+
+    // Check if any move is too recent (in move history)
+    for (auto& move : moves) {
+        if (!moveHistory.isMoveRecent(move)) {
+            // Add the move to history and return it
+            moveHistory.addMove(move);
+            return move;
         }
     }
 
-    return legalMoves;
+    // If no valid move found, pick a random move
+    return getRandomMove(possibleMoves);
 }
-
-// bool AI::isKingInCheck(int color) {
-//     // Check if the king of the given color is in check after a move
-//     // This will require a method to simulate the move and check the king's safety
-//     // You can implement this by temporarily making the move and checking the board state
-
-//     // Example: Check if the king's position is under attack
-//     // (You'll need to implement this logic in your Board or Piece class)
-//     // For now, we assume you have a `isKingInCheck` method in the Board class
-//     return board.isKingInCheck(color);
-// }
-
-// Function to generate a random move for the AI
-Move AI::generateMove(Board& board) {
-    possibleMoves.clear();
-    // Get the list of legal moves for the AI
-    possibleMoves = board.getLegalMovesForPlayer(playerColor);
-
-    // If there are no legal moves, return a default move (like passing or no move)
-    if (possibleMoves.empty()) {
-        cout << "No possible moves for AI!" << std::endl;
-        return Move();  // Returning an empty move (assuming Move has a default constructor)
-    }
-
-    // Select a random move from the list of possible moves
-    int randomIndex = std::rand() % possibleMoves.size();
-    return possibleMoves[randomIndex];
-}
-
-// Function to check if a move is valid
-bool AI::isMoveValid(const Move& move) {
-    // Ensure the piece exists at the starting position
-    shared_ptr<Piece> piece = board.getPiece(move.startX, move.startY);
-    if (!piece) {
-        cout << "No piece at starting position (" << move.startX << ", " << move.startY << ")!" << endl;
-        return false;
-    }
-
-    // Check if the move is valid for the piece
-    if (!piece->isValidMove(move.startX, move.startY, move.endX, move.endY)) {
-        cout << "Invalid move for " << piece->getSymbol() << " from (" 
-             << move.startX << ", " << move.startY << ") to (" 
-             << move.endX << ", " << move.endY << ")!" << endl;
-        return false;
-    }
-
-    return true;
-}
-
-//     // Optionally check if the move is valid using Move's own validation method
-//     // (Ensure that Move class has the `isValid` method)
-//     if (!move.isValid()) {
-//         cout << "Move is not valid according to general rules!" << endl;
-//         return false;
-//     }
-
-//     return true;
-// }
-
-// Optional: Evaluate the board for more complex strategies (could be used for Minimax)
-// int AI::evaluateBoard(const Board& board) {
-//     // A simple evaluation function could return a score based on the number of pieces on the board
-//     // You can later expand this to consider board positions, piece types, etc.
-//     return board.getPieceCount(playerColor) - board.getPieceCount(3 - playerColor);  // Assuming '3' is the opponent color
-// }
