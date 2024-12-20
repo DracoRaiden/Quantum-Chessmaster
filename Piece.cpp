@@ -1,4 +1,4 @@
-#include "Board.h"
+#include "Board.h"  // Make sure this is included
 #include <memory>
 #include <list>
 #include <queue>
@@ -8,10 +8,6 @@
 #include <algorithm>
 
 using namespace std;
-
-
-
-LastMove lastMove; // Definition (with initialization)
 
 
 bool Pawn::isValidMove(int startX, int startY, int endX, int endY) const

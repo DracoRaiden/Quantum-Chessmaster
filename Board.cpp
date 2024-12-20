@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <algorithm>
+#include "Piece.h"
 
 // ANSI color codes
 const string RESET = "\033[0m";

@@ -10,6 +10,7 @@
 
 using namespace std;
 
+class Piece;
 // Class representing the Chessboard
 class Board
 {
@@ -53,5 +54,7 @@ struct LastMove
     bool isTwoSquareMove;
     shared_ptr<Piece> pieceCaptured; // Change to shared_ptr<Piece>  Assuming Piece is the class or struct that represents a chess piece
 };
+
+extern LastMove lastMove;
 
 #endif // BOARD_H

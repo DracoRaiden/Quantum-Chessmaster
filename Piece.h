@@ -2,14 +2,15 @@
 #define PIECE_H
 
 #include <iostream>
-#include "Board.h"
 #include <vector>
 #include <string>
 #include <memory> // For smart pointers (optional but useful)
 #include <stack>
+#include "Board.h"  // Make sure this is included
 
 using namespace std;
 
+class Board;
 // Base class for all chess pieces
 class Piece
 {
@@ -34,12 +35,17 @@ public:
     bool getColor() const { return isWhite; }                                       // Returns the piece color
 };
 
-// Define a structure for a move
-struct Move
-{
-    int startX, startY; // Starting position
-    int endX, endY;     // Ending position
+struct Move {
+    int startX, startY, endX, endY;
+
+    // Constructor to initialize start and end positions
+    Move(int startX, int startY, int endX, int endY)
+        : startX(startX), startY(startY), endX(endX), endY(endY) {}
+
+    // Default constructor (optional)
+    Move() : startX(0), startY(0), endX(0), endY(0) {}
 };
+
 
 // King class
 class King : public Piece
