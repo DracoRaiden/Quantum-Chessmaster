@@ -140,6 +140,133 @@ bool Board::isPathClear(int startX, int startY, int endX, int endY) const
     return true; // Path is clear
 }
 
+// void Board::buildAdjacencyList(vector<vector<int>> &adjList) const
+// {
+//     int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}; // Horizontal and vertical moves for simplicity
+//     int N = 8;
+
+//     std::cout << "Building adjacency list..." << std::endl;
+
+//     // Build adjacency list (board representation)
+//     for (int x = 0; x < N; ++x)
+//     {
+//         for (int y = 0; y < N; ++y)
+//         {
+//             int node = x * N + y; // Convert (x, y) to node number
+//             // Get the piece at (x, y)
+//             if (auto piece = getPiece(x, y)) 
+//             {
+//                 cout << "Piece at (" << x << ", " << y << ") found: " << piece->getSymbol() << endl;
+//                 for (auto &dir : directions)
+//                 {
+//                     int nx = x + dir[0], ny = y + dir[1];
+
+//                     // Ensure the new position (nx, ny) is within bounds
+//                     if (nx >= 0 && nx < N && ny >= 0 && ny < N)
+//                     {
+//                         std::cout << "Checking move to (" << nx << ", " << ny << ")..." << std::endl;
+                        
+//                         // Check if the move is valid, and the target square is unoccupied
+//                         if (piece->isValidMove(x, y, nx, ny) && !isSquareOccupied(nx, ny))
+//                         {
+//                             std::cout << "Move to (" << nx << ", " << ny << ") is valid. Adding to adjacency list." << std::endl;
+//                             adjList[node].push_back(nx * N + ny); // Add neighbor to adjacency list
+//                         }
+//                         else
+//                         {
+//                             std::cout << "Move to (" << nx << ", " << ny << ") is not valid or is occupied." << std::endl;
+//                         }
+//                     }
+//                 }
+//             }
+//             else
+//             {
+//                 cout << "No piece at (" << x << ", " << y << ")." << std::endl;
+//             }
+//         }
+//     }
+
+//     cout << "Adjacency list building completed." << std::endl;
+// }
+
+// bool Board::isPathClear(int startX, int startY, int endX, int endY) const
+// {
+//     int N = 8;
+
+//     // Initialize adjacency list for the board
+//     vector<std::vector<int>> adjList(N * N);
+
+//     // Build the adjacency list
+//     std::cout << "Building adjacency list for path clear check..." << std::endl;
+//     buildAdjacencyList(adjList);
+
+//     int startNode = startX * N + startY;
+//     int endNode = endX * N + endY;
+
+//     cout << "Start node: " << startNode << " (" << startX << ", " << startY << ")" << std::endl;
+//     cout << "End node: " << endNode << " (" << endX << ", " << endY << ")" << std::endl;
+
+//     // Use BFS to find if a path exists from startNode to endNode
+//     vector<bool> visited(N * N, false);
+//     queue<int> q;
+//     q.push(startNode);
+//     visited[startNode] = true;
+
+//     while (!q.empty())
+//     {
+//         int current = q.front();
+//         q.pop();
+
+//         cout << "Visiting node: " << current << std::endl;
+
+//         if (current == endNode)
+//         {
+//             cout << "Path found!" << std::endl;
+//             return true; // Path found
+//         }
+
+//         // Check all adjacent nodes
+//         for (int neighbor : adjList[current])
+//         {
+//             // // If the move is a knight move, no need to check for path blockage
+//             // int dx = abs(endX - startX);
+//             // int dy = abs(endY - startY);
+
+//             // // Knight moves in an L shape, so no need to check the path for knight
+//             // if ((dx == 2 && dy == 1) || (dx == 1 && dy == 2))
+//             // {
+//             //     return true; // No path check for knight moves
+//             // }
+
+//             // Check if the move is a knight move (no need to check path blockage for knight)
+//             int dx = abs(endX - startX);  // Row difference
+//             int dy = abs(endY - startY);  // Column difference
+
+//             // Knight moves in an L shape, so no need to check the path for knight moves
+//             if ((dx == 2 && dy == 1) || (dx == 1 && dy == 2))
+//             {
+//                 cout << "Knight move to neighbor: " << neighbor << ". No path check needed." << endl;
+//                 // visited[neighbor] = true;
+//                 // q.push(neighbor);
+//                 // continue;
+//                 return true;
+//             }
+
+//             // Skip if already visited
+//             if (!visited[neighbor])
+//             {
+//                 visited[neighbor] = true;
+//                 q.push(neighbor);
+//                 cout << "Queueing neighbor: " << neighbor << std::endl;
+//             }
+//         }
+//     }
+
+//     cout << "No path found." << std::endl;
+//     return false; // No path found
+// }
+
+
 bool Board::movePiece(int startX, int startY, int endX, int endY)
 {
     // Save the current board state before making the move (for undo functionality)
@@ -829,17 +956,20 @@ void Board::undoMove()
 // }
 
 // Board method to get possible moves for a piece at a given position
-vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const {
+vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
+{
     vector<pair<int, int>> moves;
 
     // Check if the square is occupied
-    if (!isSquareOccupied(startX, startY)) {
-        return moves;  // Return an empty list if no piece exists
+    if (!isSquareOccupied(startX, startY))
+    {
+        return moves; // Return an empty list if no piece exists
     }
 
     // Retrieve the piece at the specified position
     shared_ptr<Piece> piece = getPiece(startX, startY);
-    if (piece) {
+    if (piece)
+    {
         moves = piece->getLegalMoves(startX, startY, *this);
     }
 

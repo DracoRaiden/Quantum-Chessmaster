@@ -27,6 +27,7 @@ public:
     void printBoard() const;                                            // Prints the board to the console
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
+    void buildAdjacencyList(vector<vector<int>>& adjList) const;
     bool movePiece(int startX, int startY, int endX, int endY);         // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
