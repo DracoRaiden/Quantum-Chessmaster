@@ -627,295 +627,295 @@ void Board::undoMove()
     }
 }
 
-vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
-{
-    vector<pair<int, int>> moves;
+// vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
+// {
+//     vector<pair<int, int>> moves;
 
-    // Check if there is a piece at the given position
-    if (!isSquareOccupied(startX, startY))
-    {
-        return moves; // Return an empty list if no piece exists
-    }
+//     // Check if there is a piece at the given position
+//     if (!isSquareOccupied(startX, startY))
+//     {
+//         return moves; // Return an empty list if no piece exists
+//     }
 
-    // Retrieve the piece and its type
-    auto piece = getPiece(startX, startY);
-    if (!piece)
-    {
-        return moves; // Safety check
-    }
+//     // Retrieve the piece and its type
+//     auto piece = getPiece(startX, startY);
+//     if (!piece)
+//     {
+//         return moves; // Safety check
+//     }
 
-    char pieceType = piece->getSymbol(); // Assuming getType() returns a char: 'K', 'Q', 'R', 'B', 'N', or 'P'
+//     char pieceType = piece->getSymbol(); // Assuming getType() returns a char: 'K', 'Q', 'R', 'B', 'N', or 'P'
 
-    // King movement
-    if (pieceType == 'K' || pieceType == 'k')
-    {
-        for (int dx : {-1, 0, 1})
-        {
-            for (int dy : {-1, 0, 1})
-            {
-                if (dx == 0 && dy == 0)
-                    continue;
-                int newX = startX + dx, newY = startY + dy;
-                if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
-                    (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
-                {
-                    moves.push_back({newX, newY});
-                }
-            }
-        }
-    }
+//     // King movement
+//     if (pieceType == 'K' || pieceType == 'k')
+//     {
+//         for (int dx : {-1, 0, 1})
+//         {
+//             for (int dy : {-1, 0, 1})
+//             {
+//                 if (dx == 0 && dy == 0)
+//                     continue;
+//                 int newX = startX + dx, newY = startY + dy;
+//                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+//                     (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
+//                 {
+//                     moves.push_back({newX, newY});
+//                 }
+//             }
+//         }
+//     }
 
-    // Rook movement
-    else if (pieceType == 'R' || pieceType == 'r')
-    {
-        vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (auto &dir : directions)
-        {
-            int newX = startX, newY = startY;
-            while (true)
-            {
-                newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
-                    break;
-                if (!isSquareOccupied(newX, newY))
-                    moves.push_back({newX, newY});
-                else
-                {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor())
-                        moves.push_back({newX, newY});
-                    break;
-                }
-            }
-        }
-    }
+//     // Rook movement
+//     else if (pieceType == 'R' || pieceType == 'r')
+//     {
+//         vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+//         for (auto &dir : directions)
+//         {
+//             int newX = startX, newY = startY;
+//             while (true)
+//             {
+//                 newX += dir.first, newY += dir.second;
+//                 if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+//                     break;
+//                 if (!isSquareOccupied(newX, newY))
+//                     moves.push_back({newX, newY});
+//                 else
+//                 {
+//                     if (getPiece(newX, newY)->getColor() != piece->getColor())
+//                         moves.push_back({newX, newY});
+//                     break;
+//                 }
+//             }
+//         }
+//     }
 
-    // Bishop movement
-    else if (pieceType == 'B' || pieceType == 'b')
-    {
-        vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-        for (auto &dir : directions)
-        {
-            int newX = startX, newY = startY;
-            while (true)
-            {
-                newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
-                    break;
-                if (!isSquareOccupied(newX, newY))
-                    moves.push_back({newX, newY});
-                else
-                {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor())
-                        moves.push_back({newX, newY});
-                    break;
-                }
-            }
-        }
-    }
+//     // Bishop movement
+//     else if (pieceType == 'B' || pieceType == 'b')
+//     {
+//         vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+//         for (auto &dir : directions)
+//         {
+//             int newX = startX, newY = startY;
+//             while (true)
+//             {
+//                 newX += dir.first, newY += dir.second;
+//                 if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+//                     break;
+//                 if (!isSquareOccupied(newX, newY))
+//                     moves.push_back({newX, newY});
+//                 else
+//                 {
+//                     if (getPiece(newX, newY)->getColor() != piece->getColor())
+//                         moves.push_back({newX, newY});
+//                     break;
+//                 }
+//             }
+//         }
+//     }
 
-    // Queen movement
-    else if (pieceType == 'Q' || pieceType == 'q')
-    {
-        vector<pair<int, int>> directions = {
-            {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-        for (auto &dir : directions)
-        {
-            int newX = startX, newY = startY;
-            while (true)
-            {
-                newX += dir.first, newY += dir.second;
-                if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
-                    break;
-                if (!isSquareOccupied(newX, newY))
-                    moves.push_back({newX, newY});
-                else
-                {
-                    if (getPiece(newX, newY)->getColor() != piece->getColor())
-                        moves.push_back({newX, newY});
-                    break;
-                }
-            }
-        }
-    }
+//     // Queen movement
+//     else if (pieceType == 'Q' || pieceType == 'q')
+//     {
+//         vector<pair<int, int>> directions = {
+//             {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+//         for (auto &dir : directions)
+//         {
+//             int newX = startX, newY = startY;
+//             while (true)
+//             {
+//                 newX += dir.first, newY += dir.second;
+//                 if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
+//                     break;
+//                 if (!isSquareOccupied(newX, newY))
+//                     moves.push_back({newX, newY});
+//                 else
+//                 {
+//                     if (getPiece(newX, newY)->getColor() != piece->getColor())
+//                         moves.push_back({newX, newY});
+//                     break;
+//                 }
+//             }
+//         }
+//     }
 
-    // Knight movement
-    else if (pieceType == 'N' || pieceType == 'n')
-    {
-        vector<pair<int, int>> directions = {
-            {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
-        for (auto &dir : directions)
-        {
-            int newX = startX + dir.first, newY = startY + dir.second;
-            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
-                (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
-            {
-                moves.push_back({newX, newY});
-            }
-        }
-    }
+//     // Knight movement
+//     else if (pieceType == 'N' || pieceType == 'n')
+//     {
+//         vector<pair<int, int>> directions = {
+//             {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+//         for (auto &dir : directions)
+//         {
+//             int newX = startX + dir.first, newY = startY + dir.second;
+//             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+//                 (!isSquareOccupied(newX, newY) || getPiece(newX, newY)->getColor() != piece->getColor()))
+//             {
+//                 moves.push_back({newX, newY});
+//             }
+//         }
+//     }
 
-    // Pawn movement
-    else if (pieceType == 'P' || pieceType == 'p')
-    {
-        int direction = piece->getColor() ? -1 : 1;
-        int newY = startY + direction;
+//     // Pawn movement
+//     else if (pieceType == 'P' || pieceType == 'p')
+//     {
+//         int direction = piece->getColor() ? -1 : 1;
+//         int newY = startY + direction;
 
-        // Forward move
-        if (newY >= 0 && newY < 8 && !isSquareOccupied(startX, newY))
-        {
-            moves.push_back({startX, newY});
-        }
+//         // Forward move
+//         if (newY >= 0 && newY < 8 && !isSquareOccupied(startX, newY))
+//         {
+//             moves.push_back({startX, newY});
+//         }
 
-        // Capture diagonals
-        for (int dx : {-1, 1})
-        {
-            int newX = startX + dx;
-            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 && isSquareOccupied(newX, newY))
-            {
-                auto target = getPiece(newX, newY);
-                if (target && target->getColor() != piece->getColor())
-                {
-                    moves.push_back({newX, newY});
-                }
-            }
-        }
-    }
+//         // Capture diagonals
+//         for (int dx : {-1, 1})
+//         {
+//             int newX = startX + dx;
+//             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 && isSquareOccupied(newX, newY))
+//             {
+//                 auto target = getPiece(newX, newY);
+//                 if (target && target->getColor() != piece->getColor())
+//                 {
+//                     moves.push_back({newX, newY});
+//                 }
+//             }
+//         }
+//     }
 
-    return moves;
-}
+//     return moves;
+// }
 
-// Get all legal moves for a given player
-vector<Move> Board::getLegalMovesForPlayer(int player)
-{
-    vector<Move> legalMoves;
+// // Get all legal moves for a given player
+// vector<Move> Board::getLegalMovesForPlayer(int player)
+// {
+//     vector<Move> legalMoves;
 
-    // Loop through each square on the board
-    for (int startX = 0; startX < 8; ++startX)
-    {
-        for (int startY = 0; startY < 8; ++startY)
-        {
-            // Get the piece at the current position
-            shared_ptr<Piece> piece = board[startX][startY];
+//     // Loop through each square on the board
+//     for (int startX = 0; startX < 8; ++startX)
+//     {
+//         for (int startY = 0; startY < 8; ++startY)
+//         {
+//             // Get the piece at the current position
+//             shared_ptr<Piece> piece = board[startX][startY];
 
-            // If there's a piece belonging to the current player, generate its possible moves
-            if (piece && piece->getColor() == player)
-            {
-                // Get all possible moves for this piece by calling the polymorphic function
-                vector<pair<int, int>> moves = getPossibleMoves(startX, startY);
+//             // If there's a piece belonging to the current player, generate its possible moves
+//             if (piece && piece->getColor() == player)
+//             {
+//                 // Get all possible moves for this piece by calling the polymorphic function
+//                 vector<pair<int, int>> moves = getPossibleMoves(startX, startY);
 
-                // For each possible move, check the legality
-                for (const auto &move : moves)
-                {
-                    int endX = move.first;
-                    int endY = move.second;
+//                 // For each possible move, check the legality
+//                 for (const auto &move : moves)
+//                 {
+//                     int endX = move.first;
+//                     int endY = move.second;
 
-                    // Validate move conditions
-                    // 1. The square is empty, or it contains an opponent's piece (for capturing).
-                    // 2. The path is clear (for sliding pieces like rooks, bishops, and queens).
-                    if (movePiece(startX, startY, endX, endY))
-                    {
+//                     // Validate move conditions
+//                     // 1. The square is empty, or it contains an opponent's piece (for capturing).
+//                     // 2. The path is clear (for sliding pieces like rooks, bishops, and queens).
+//                     if (movePiece(startX, startY, endX, endY))
+//                     {
 
-                        if (!isSquareOccupied(startX, startY) || !getPiece(startX, startY))
-                        {
-                            continue; // Skip invalid starting positions
-                        }
+//                         if (!isSquareOccupied(startX, startY) || !getPiece(startX, startY))
+//                         {
+//                             continue; // Skip invalid starting positions
+//                         }
 
-                        legalMoves.push_back({startX, startY, endX, endY});
-                    }
-                }
-            }
-        }
-    }
+//                         legalMoves.push_back({startX, startY, endX, endY});
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    return legalMoves;
-}
+//     return legalMoves;
+// }
 
-stack<Move> lastAIMoves;
+// stack<Move> lastAIMoves;
 
-bool Board::isMoveRepeated(const Move &move)
-{
-    stack<Move> tempStack = lastAIMoves; // Copy the stack
+// bool Board::isMoveRepeated(const Move &move)
+// {
+//     stack<Move> tempStack = lastAIMoves; // Copy the stack
 
-    while (!tempStack.empty())
-    {
-        const Move &lastMove = tempStack.top();
-        if (lastMove.startX == move.startX &&
-            lastMove.startY == move.startY &&
-            lastMove.endX == move.endX &&
-            lastMove.endY == move.endY)
-        {
-            return true;
-        }
-        tempStack.pop(); // Move to the next item
-    }
-    return false;
-}
+//     while (!tempStack.empty())
+//     {
+//         const Move &lastMove = tempStack.top();
+//         if (lastMove.startX == move.startX &&
+//             lastMove.startY == move.startY &&
+//             lastMove.endX == move.endX &&
+//             lastMove.endY == move.endY)
+//         {
+//             return true;
+//         }
+//         tempStack.pop(); // Move to the next item
+//     }
+//     return false;
+// }
 
-void Board::markMoveAsMade(const Move &move)
-{
-    // Temporary stack to manage a fixed size of 5 moves
-    stack<Move> tempStack;
+// void Board::markMoveAsMade(const Move &move)
+// {
+//     // Temporary stack to manage a fixed size of 5 moves
+//     stack<Move> tempStack;
 
-    // Transfer elements to the temporary stack (up to 4 moves)
-    while (!lastAIMoves.empty() && tempStack.size() < 4)
-    {
-        tempStack.push(lastAIMoves.top());
-        lastAIMoves.pop();
-    }
+//     // Transfer elements to the temporary stack (up to 4 moves)
+//     while (!lastAIMoves.empty() && tempStack.size() < 4)
+//     {
+//         tempStack.push(lastAIMoves.top());
+//         lastAIMoves.pop();
+//     }
 
-    // Clear the original stack
-    while (!lastAIMoves.empty())
-    {
-        lastAIMoves.pop();
-    }
+//     // Clear the original stack
+//     while (!lastAIMoves.empty())
+//     {
+//         lastAIMoves.pop();
+//     }
 
-    // Push back the moves into lastAIMoves in the correct order
-    while (!tempStack.empty())
-    {
-        lastAIMoves.push(tempStack.top());
-        tempStack.pop();
-    }
+//     // Push back the moves into lastAIMoves in the correct order
+//     while (!tempStack.empty())
+//     {
+//         lastAIMoves.push(tempStack.top());
+//         tempStack.pop();
+//     }
 
-    // Push the new move onto the stack
-    lastAIMoves.push(move);
-}
+//     // Push the new move onto the stack
+//     lastAIMoves.push(move);
+// }
 
-Move Board::calculateAIMove()
-{
-    vector<Move> possibleMoves = getLegalMovesForPlayer(false); // Black (AI)
+// Move Board::calculateAIMove()
+// {
+//     vector<Move> possibleMoves = getLegalMovesForPlayer(false); // Black (AI)
 
-    if (possibleMoves.empty())
-    {
-        // No moves available
-        return {-1, -1, -1, -1};
-    }
+//     if (possibleMoves.empty())
+//     {
+//         // No moves available
+//         return {-1, -1, -1, -1};
+//     }
 
-    // Seed the random number generator
-    srand(static_cast<unsigned>(time(nullptr)));
+//     // Seed the random number generator
+//     srand(static_cast<unsigned>(time(nullptr)));
 
-    // Shuffle the possible moves using simple random logic
-    for (size_t i = 0; i < possibleMoves.size(); ++i)
-    {
-        int randomIndex = rand() % possibleMoves.size();
-        swap(possibleMoves[i], possibleMoves[randomIndex]);
-    }
+//     // Shuffle the possible moves using simple random logic
+//     for (size_t i = 0; i < possibleMoves.size(); ++i)
+//     {
+//         int randomIndex = rand() % possibleMoves.size();
+//         swap(possibleMoves[i], possibleMoves[randomIndex]);
+//     }
 
-    for (const Move &move : possibleMoves)
-    {
-        if (movePiece(move.startX, move.startY, move.endX, move.endY))
-        {
-            // Undo the move to maintain game state
-            undoMove();
+//     for (const Move &move : possibleMoves)
+//     {
+//         if (movePiece(move.startX, move.startY, move.endX, move.endY))
+//         {
+//             // Undo the move to maintain game state
+//             undoMove();
 
-            // Ensure the move isn't repeated
-            if (!isMoveRepeated(move))
-            {
-                markMoveAsMade(move);
-                return move;
-            }
-        }
-    }
+//             // Ensure the move isn't repeated
+//             if (!isMoveRepeated(move))
+//             {
+//                 markMoveAsMade(move);
+//                 return move;
+//             }
+//         }
+//     }
 
-    // No valid moves found
-    return {-1, -1, -1, -1};
-}
+//     // No valid moves found
+//     return {-1, -1, -1, -1};
+// }
