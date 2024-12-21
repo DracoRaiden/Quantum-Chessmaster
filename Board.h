@@ -39,6 +39,8 @@ public:
     // Function to track the current state of the board and push it to the history stack
     void saveHistory();
     vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
+    bool isRedoEmpty() const;
+    int getHistorySize() const;
     // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move

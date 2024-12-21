@@ -32,6 +32,13 @@ Board::Board()
     //         }
     //     }
     // }
+
+    
+    // Clear redo history as no moves have been undone.
+    while (!redoHistory.empty())
+    {
+        redoHistory.pop();
+    }
 }
 
 void Board::setupBoard()
@@ -642,6 +649,8 @@ void Board::undoMove()
     // Check if there is a move to undo (i.e., the history stack is not empty).
     if (!history.empty())
     {
+        // Save the current state to redoHistory for potential redo.
+        redoHistory.push(board);
         // Pop the top state from the history stack.
         vector<vector<shared_ptr<Piece>>> previousState = history.top();
         history.pop();
@@ -684,6 +693,74 @@ bool Board::redoMove() {
         return false;
     }
 }
+
+int Board::getHistorySize() const
+{
+    return history.size();
+}
+
+
+bool Board::isRedoEmpty() const
+{
+    return redoHistory.empty();
+}
+
+
+// void Board::undoMove()
+// {
+//     // Edge case: Check if the history stack has only one state (the initial state).
+//     if (history.size() <= 1)
+//     {
+//         // cout << "No moves to undo!" << endl;
+//         return;
+//     }
+
+//     // Save the current state to the redoHistory queue for potential redo.
+//     redoHistory.push(board);
+
+//     // Restore the previous state from the history stack.
+//     vector<vector<shared_ptr<Piece>>> previousState = history.top();
+//     history.pop();
+
+//     for (int row = 0; row < 8; ++row)
+//     {
+//         for (int col = 0; col < 8; ++col)
+//         {
+//             board[row][col] = previousState[row][col];
+//         }
+//     }
+
+//     // cout << "Last move has been undone!" << endl;
+// }
+
+// bool Board::redoMove()
+// {
+//     // Edge case: Check if no move has been undone (redoHistory queue is empty).
+//     if (redoHistory.empty())
+//     {
+//         // cout << "No moves to redo!" << endl;
+//         return false;
+//     }
+
+//     // Save the current state to the history stack for potential undo.
+//     history.push(board);
+
+//     // Restore the next state from the redoHistory queue.
+//     vector<vector<shared_ptr<Piece>>> nextState = redoHistory.front();
+//     redoHistory.pop();
+
+//     for (int row = 0; row < 8; ++row)
+//     {
+//         for (int col = 0; col < 8; ++col)
+//         {
+//             board[row][col] = nextState[row][col];
+//         }
+//     }
+
+//     // cout << "Move redone!" << endl;
+//     return true;
+// }
+
 
 // vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
 // {

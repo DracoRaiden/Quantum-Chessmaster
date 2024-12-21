@@ -58,27 +58,33 @@ int main()
 
         if (command == "undo")
         {
-
-            chessBoard.undoMove();                        // Undo the last move
-            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch back the player after undo
-            cout << "Last move has been undone!" << endl;
+            // Check if there are moves to undo (history size > 1).
+            if (chessBoard.getHistorySize() < 1)
+            {
+                cout << "No moves to undo!" << endl;
+            }
+            else
+            {
+                chessBoard.undoMove();                        // Undo the last move
+                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch back the player after undo
+                cout << "Last move has been undone!" << endl;
+            }
             continue;
         }
-
         else if (command == "redo")
         {
-            if (chessBoard.redoMove())
+            // Check if there are moves to redo (redoHistory not empty).
+            if (chessBoard.isRedoEmpty())
             {
-                cout << "Last undone move has been redone!" << endl;
-                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
-                cout << "Move has been redone!" << endl;
-                continue;
-            }
-
-            else{
                 cout << "No moves to redo!" << endl;
-                continue;
             }
+            else
+            {
+                chessBoard.redoMove();                        // Redo the last undone move
+                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
+                cout << "Last undone move has been redone!" << endl;
+            }
+            continue;
         }
 
         cin >> target; // Read the target position
