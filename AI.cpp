@@ -9,6 +9,7 @@
 #include <vector>
 #include <queue>
 
+
 MoveList::MoveList() : head(nullptr), tail(nullptr) {}
 
 void MoveList::addMove(const pair<pair<int, int>, pair<int, int>> &move)
@@ -286,6 +287,9 @@ pair<pair<int, int>, pair<int, int>> AI::selectMove(const Board &board)
 
 bool AI::isMoveValid(const Move &move, Board &board)
 {
+    // Initialize Checkmate with the board's current state
+    Checkmate checkmate(board.getBoard()); // Pass board reference to Checkmate
+
     cout << "Checking move validity: " << move.startX << "," << move.startY << " -> " << move.endX << "," << move.endY << endl;
 
     // Check if the move is within board bounds
@@ -312,7 +316,7 @@ bool AI::isMoveValid(const Move &move, Board &board)
     }
 
     // Check if the move is valid for the piece using the movePiece function (without actually making the move)
-    if (!board.movePiece(move.startX, move.startY, move.endX, move.endY))
+    if (!board.movePiece(move.startX, move.startY, move.endX, move.endY, 2))
     {
         cout << "Invalid move based on the board logic!" << endl;
         return false; // Invalid move based on the logic defined in movePiece

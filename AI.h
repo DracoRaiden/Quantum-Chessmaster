@@ -13,6 +13,7 @@ using namespace std;
 
 class Board;
 class Piece;
+struct Move;
 
 // Circular Queue class to store recent moves
 class CircularQueue

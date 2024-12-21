@@ -42,15 +42,17 @@ class Piece;
 // };
 
 // checkmate.h
-
-// Define the Square class
 class Square {
 public:
-    int x, y; // Position on the board
-    bool isUnderAttack; // Whether this square is under attack
-    char piece; // Store the piece (could be 'K' for King, 'Q' for Queen, etc.)
-    
-    Square(int x, int y, char piece = '.') : x(x), y(y), piece(piece), isUnderAttack(false) {}
+    int x, y;              // Position on the board
+    bool isUnderAttack;    // Whether this square is under attack
+    char piece;            // Store the piece (could be 'K' for King, 'Q' for Queen, etc.)
+
+    // Default constructor
+    Square();
+
+    // Constructor with arguments
+    Square(int x, int y, char piece = '.');
 };
 
 class Checkmate {
@@ -58,8 +60,8 @@ public:
    // Constructor that accepts a reference to the board
     Checkmate(const vector<vector<shared_ptr<Piece>>>& board);
 
-    bool isKingInCheck(int kingX, int kingY); // Check if the King is in check
-    bool isCheckmate(int kingX, int kingY); // Check for checkmate
+    bool isKingInCheck(int kingX, int kingY, Board &board); // Check if the King is in check
+    bool isCheckmate(int kingX, int kingY, Board &board); // Check for checkmate
 
 private:
     vector<vector<shared_ptr<Piece>>> boardSquares;  // Store the board in Checkmate
@@ -67,7 +69,7 @@ private:
     //Moved funciton to the Piece class
     // void markAttacks();  // Function to mark all squares under attack
 
-    bool canKingEscape(int kingX, int kingY);  // Check if the King can escape
+    bool canKingEscape(int kingX, int kingY, Board &board);  // Check if the King can escape
 };
 
 #endif // CHECKMATE_H

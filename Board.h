@@ -7,19 +7,23 @@
 #include <memory> // For smart pointers (optional but useful)
 #include <stack>
 #include "Piece.h"
+#include "Checkmate.h"
 
 using namespace std;
 
 class Piece;
 class Square;
+class Checkmate;
+
+
 // Class representing the Chessboard
 class Board
 {
 private:
     vector<vector<shared_ptr<Piece>>> board; // 2D vector of smart pointers to pieces
-
     // Stack to store history of board states (for undo functionality)
     stack<vector<vector<shared_ptr<Piece>>>> history;
+    Checkmate *checkmate; // Add Checkmate as a member of Board class
 
 public:
     // New 2D vector of Squares
@@ -32,7 +36,7 @@ public:
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
     // void buildAdjacencyList(vector<vector<int>>& adjList) const;
-    bool movePiece(int startX, int startY, int endX, int endY); // Moves a piece
+    bool movePiece(int startX, int startY, int endX, int endY, int currentPlayer); // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
@@ -46,9 +50,11 @@ public:
     bool isRedoEmpty() const;
     int getHistorySize() const;
 
-    Square& getSquare(int x, int y);
-    
-    
+    Square &getSquare(int x, int y);
+    pair<int, int> getWhiteKingPosition();
+    pair<int, int> getBlackKingPosition();
+    // Function to return the board (access to the internal 2D vector of shared_ptr<Piece>)
+    vector<vector<shared_ptr<Piece>>> getBoard() const;
     // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move

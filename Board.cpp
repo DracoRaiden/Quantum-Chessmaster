@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include "Piece.h"
+#include "Checkmate.h"
 
 // ANSI color codes
 const string RESET = "\033[0m";
@@ -18,20 +19,31 @@ const string BLACK_TEXT = "\033[30m";
 LastMove lastMove; // Definition (with initialization)
 stack<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
-
-// Board Implementation
+// Board.cpp
 Board::Board()
 {
-    board.resize(8, vector<shared_ptr<Piece>>(8, nullptr)); // Resize board to 8x8
-    squareBoard.resize(8, vector<Square>(8));  // Initialize squareBoard
+    // Resize the board to 8x8 and initialize with nullptr for pieces
+    board.resize(8, vector<shared_ptr<Piece>>(8, nullptr));
 
+    // Initialize the squareBoard (used for additional game-related information, e.g., state of each square)
+    squareBoard.resize(8, vector<Square>(8));
 
+    // Setup the board with pieces
     setupBoard();
-    lastMove = {0, 0, 0, 0, false}; // Default initialization
 
+    // Initialize the last move (initially no move)
+    lastMove = {0, 0, 0, 0, false};
 
+    // Initialize Checkmate with the current board state
+    checkmate = new Checkmate(board); // Pass the current board to Checkmate constructor
 
-    // After the setupBoard() call in main(), add:
+    // Clear redo history as no moves have been undone
+    while (!redoHistory.empty())
+    {
+        redoHistory.pop();
+    }
+    // Optional: Debugging output to print pieces on the board after setup
+    // Uncomment the following code if you want to debug
     // for (int i = 0; i < 8; ++i) {
     //     for (int j = 0; j < 8; ++j) {
     //         if (board[i][j] != nullptr) {
@@ -39,29 +51,20 @@ Board::Board()
     //         }
     //     }
     // }
-
-    
-    // Clear redo history as no moves have been undone.
-    while (!redoHistory.empty())
-    {
-        redoHistory.pop();
-    }
 }
 
 // Board class method to get a reference to a square at (x, y)
-Square& Board::getSquare(int x, int y) {
-    return squareBoard[x][y];  // Return the reference to Square object in squareBoard
+Square &Board::getSquare(int x, int y)
+{
+    return squareBoard[x][y]; // Return the reference to Square object in squareBoard
 }
-
-
 
 void Board::setupBoard()
 {
     // Initialize an empty 8x8 board
     board.resize(8, vector<shared_ptr<Piece>>(8, nullptr));
 
-
-// Initialize an empty 8x8 board for squares
+    // Initialize an empty 8x8 board for squares
     squareBoard.resize(8, vector<Square>(8));
 
     // Set up Pawns
@@ -180,7 +183,7 @@ bool Board::isPathClear(int startX, int startY, int endX, int endY) const
 //         {
 //             int node = x * N + y; // Convert (x, y) to node number
 //             // Get the piece at (x, y)
-//             if (auto piece = getPiece(x, y)) 
+//             if (auto piece = getPiece(x, y))
 //             {
 //                 cout << "Piece at (" << x << ", " << y << ") found: " << piece->getSymbol() << endl;
 //                 for (auto &dir : directions)
@@ -191,7 +194,7 @@ bool Board::isPathClear(int startX, int startY, int endX, int endY) const
 //                     if (nx >= 0 && nx < N && ny >= 0 && ny < N)
 //                     {
 //                         std::cout << "Checking move to (" << nx << ", " << ny << ")..." << std::endl;
-                        
+
 //                         // Check if the move is valid, and the target square is unoccupied
 //                         if (piece->isValidMove(x, y, nx, ny) && !isSquareOccupied(nx, ny))
 //                         {
@@ -292,8 +295,40 @@ bool Board::isPathClear(int startX, int startY, int endX, int endY) const
 //     return false; // No path found
 // }
 
+// Function to get the white king's position
+pair<int, int> Board::getWhiteKingPosition()
+{
+    for (int i = 0; i < 8; ++i)
+    {
+        for (int j = 0; j < 8; ++j)
+        {
+            auto piece = board[i][j];
+            if (piece && piece->getSymbol() == 'K')
+            {
+                return {i, j};
+            }
+        }
+    }
+    return {-1, -1}; // Return invalid coordinates if the king is not found
+}
 
-bool Board::movePiece(int startX, int startY, int endX, int endY)
+pair<int, int> Board::getBlackKingPosition()
+{
+    for (int i = 0; i < 8; ++i)
+    {
+        for (int j = 0; j < 8; ++j)
+        {
+            auto piece = board[i][j];
+            if (piece && piece->getSymbol() == 'k')
+            {
+                return {i, j};
+            }
+        }
+    }
+    return {-1, -1}; // If not found
+}
+
+bool Board::movePiece(int startX, int startY, int endX, int endY, int currentPlayer)
 {
     // Save the current board state before making the move (for undo functionality)
     saveHistory();
@@ -357,6 +392,44 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
         cout << "Path is blocked!" << endl;
         return false;
     }
+    int kingX, kingY;
+    
+    if (currentPlayer == 1)
+    {
+        // Player 1's (White) turn - Check if Black's King is in check
+        tie(kingX, kingY) = getBlackKingPosition(); // Get Black King's position
+        cout << "Checking if Black King at (" << kingX << ", " << kingY << ") is in check." << endl;
+        // Add logic to check if Black's King is in check
+        if (checkmate->isCheckmate(kingX, kingY, *this)) {
+        cout << "Checkmate! Player Black wins!" << endl;
+        return true; // Indicate game over
+    }
+    }
+    else if(currentPlayer == 2)
+    {
+        // Player 2's (Black) turn - Check if White's King is in check
+        tie(kingX, kingY) = getWhiteKingPosition(); // Get White King's position
+        cout << "Checking if White King at (" << kingX << ", " << kingY << ") is in check." << endl;
+        // Add logic to check if White's King is in check
+        if (checkmate->isCheckmate(kingX, kingY, *this)) {
+        cout << "Checkmate! Player White wins!" << endl;
+        return true; // Indicate game over
+    }
+    }
+    if (checkmate->isKingInCheck(kingX, kingY, *this)) {
+    cout << "King is in check!" << endl;
+    board[startX][startY] = piece; // Undo move if king is in check
+    board[endX][endY] = nullptr;
+    return false; // Return false to prevent further move
+}
+
+
+    // // Check if the move results in checkmate
+    // if (checkmate->isCheckmate(kingX, kingY, *this))
+    // {
+    //     cout << "Checkmate! Player " << (isWhite ? "Black" : "White") << " wins!" << endl;
+    //     return true; // Indicate game over
+    // }
 
     // Check if the destination square has a piece of the same color
     if (isSquareOccupied(endX, endY) &&
@@ -404,6 +477,12 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
          << startX << "," << startY << " to " << endX << "," << endY << "." << endl;
 
     return true;
+}
+
+// In Board.cpp
+vector<vector<shared_ptr<Piece>>> Board::getBoard() const
+{
+    return board; // Return the internal board representation
 }
 
 shared_ptr<Piece> Board::getPiece(int row, int col) const
@@ -689,8 +768,10 @@ void Board::undoMove()
         cout << "No moves to undo!" << endl;
     }
 }
-bool Board::redoMove() {
-    if (!redoHistory.empty()) {
+bool Board::redoMove()
+{
+    if (!redoHistory.empty())
+    {
         // Save the current state to history for potential undo.
         history.push(board);
 
@@ -699,8 +780,10 @@ bool Board::redoMove() {
         redoHistory.pop();
 
         // Update the board with the next state
-        for (int row = 0; row < 8; ++row) {
-            for (int col = 0; col < 8; ++col) {
+        for (int row = 0; row < 8; ++row)
+        {
+            for (int col = 0; col < 8; ++col)
+            {
                 board[row][col] = nextState[row][col];
             }
         }
@@ -708,7 +791,9 @@ bool Board::redoMove() {
         // Optionally print a message
         cout << "Move redone!" << endl;
         return true;
-    } else {
+    }
+    else
+    {
         // No moves to redo
         cout << "No moves to redo!" << endl;
         return false;
@@ -720,12 +805,10 @@ int Board::getHistorySize() const
     return history.size();
 }
 
-
 bool Board::isRedoEmpty() const
 {
     return redoHistory.empty();
 }
-
 
 // void Board::undoMove()
 // {
@@ -781,7 +864,6 @@ bool Board::isRedoEmpty() const
 //     // cout << "Move redone!" << endl;
 //     return true;
 // }
-
 
 // vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
 // {

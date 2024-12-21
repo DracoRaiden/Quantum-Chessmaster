@@ -11,9 +11,8 @@ int main()
     chessBoard.setupBoard();
     int moveHistorySize = 100;
     AI aiPlayer(moveHistorySize); // moveHistorySize is the size of the circular queue for move history
-    
-        // Create Checkmate object
-    Checkmate checkmate(chessBoard, aiPlayer);
+    // // Initialize Checkmate with the board's current state
+    // Checkmate checkmate(chessBoard.getBoard()); // Pass board reference to Checkmate
 
     string input, target, command;
     int gameMode = 0;           // 1 for Player vs Player, 2 for Player vs AI
@@ -47,7 +46,8 @@ int main()
             pair<pair<int, int>, pair<int, int>> aiMove = aiPlayer.selectMove(chessBoard);
             auto [start, end] = aiMove;
             cout << "AI moves: " << start.first << "," << start.second << " -> " << end.first << "," << end.second << endl;
-            chessBoard.movePiece(start.first, start.second, end.first, end.second);
+            chessBoard.movePiece(start.first, start.second, end.first, end.second, currentPlayer);
+
             currentPlayer = 1; // Switch back to Player 1 after AI's move
             continue;          // Skip player input when AI plays
         }
@@ -119,7 +119,7 @@ int main()
                 continue;
             }
 
-            if (chessBoard.movePiece(startX, startY, endX, endY))
+            if (chessBoard.movePiece(startX, startY, endX, endY, currentPlayer))
             {
                 firstMoveMade = true;
                 currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns after a successful move
@@ -138,26 +138,26 @@ int main()
             cout << "Move out of bounds. " << e.what() << endl;
         }
 
-    // Check if the king is in check
-    if (checkmate.isInCheck())
-    {
-        std::cout << "The king is in check!" << std::endl;
-    }
-    else
-    {
-        std::cout << "The king is safe!" << std::endl;
-    }
+        // // Check if the king is in check
+        // if (checkmate.isInCheck())
+        // {
+        //     std::cout << "The king is in check!" << std::endl;
+        // }
+        // else
+        // {
+        //     std::cout << "The king is safe!" << std::endl;
+        // }
 
-    // Check if the player is in checkmate
-    if (checkmate.isCheckmate())
-    {
-        std::cout << "Checkmate! The game is over!" << std::endl;
-    }
-    else
-    {
-        std::cout << "No checkmate yet!" << std::endl;
-    }
-        // Check for game-ending conditions (Optional, can be added)
+        // // Check if the player is in checkmate
+        // if (checkmate.isCheckmate())
+        // {
+        //     std::cout << "Checkmate! The game is over!" << std::endl;
+        // }
+        // else
+        // {
+        //     std::cout << "No checkmate yet!" << std::endl;
+        // }
+        //     // Check for game-ending conditions (Optional, can be added)
         // if (chessBoard.isGameOver())
         // {
         //     cout << "Game over! Player " << (currentPlayer == 1 ? 2 : 1) << " wins!" << endl;
