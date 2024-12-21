@@ -5,9 +5,14 @@
 #include <vector>
 #include <string>
 #include <memory> // For smart pointers (optional but useful)
-#include <stack>
+// #include <stack>
 #include "Piece.h"
 #include "Checkmate.h"
+#include "Stack.h"
+#include "Queue.h"
+#include "CapturedPieceList.h"
+
+
 
 using namespace std;
 
@@ -22,14 +27,15 @@ class Board
 private:
     vector<vector<shared_ptr<Piece>>> board; // 2D vector of smart pointers to pieces
     // Stack to store history of board states (for undo functionality)
-    stack<vector<vector<shared_ptr<Piece>>>> history;
+    Stack<vector<vector<shared_ptr<Piece>>>> history;
     Checkmate *checkmate; // Add Checkmate as a member of Board class
 
 public:
     // New 2D vector of Squares
     vector<vector<Square>> squareBoard;
     Board(); // Constructor
-
+    CapturedPieceList capturedPieces;
+    
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
     void printBoard() const;                                            // Prints the board to the console
@@ -55,6 +61,11 @@ void resetAttackFlags();
     pair<int, int> getBlackKingPosition();
     // Function to return the board (access to the internal 2D vector of shared_ptr<Piece>)
     vector<vector<shared_ptr<Piece>>> getBoard() const;
+    void capturePiece(const std::string& pieceType, bool isBlack);
+    void restoreCapturedPiece();
+    void printCapturedPieces() const;
+    // New method to convert coordinates to chessboard position
+    string convertToPosition(int x, int y);
     // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move

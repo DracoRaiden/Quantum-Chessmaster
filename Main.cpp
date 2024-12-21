@@ -93,6 +93,13 @@ int main()
             continue;
         }
 
+        else if (command == "captured")
+        {
+            cout << "Captured pieces: " << endl;
+            chessBoard.printCapturedPieces(); // Print captured pieces
+            continue;
+        }
+
         cin >> target; // Read the target position
 
         try

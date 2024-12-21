@@ -1,13 +1,13 @@
 #include "Board.h"
 #include <memory>
 #include <list>
-#include <queue>
-#include <stack>
 #include <unordered_map>
 #include <cstdlib>
 #include <algorithm>
 #include "Piece.h"
 #include "Checkmate.h"
+#include "Stack.h"
+#include "Queue.h"
 
 // ANSI color codes
 const string RESET = "\033[0m";
@@ -17,7 +17,7 @@ const string WHITE_TEXT = "\033[97m";
 const string BLACK_TEXT = "\033[30m";
 
 LastMove lastMove; // Definition (with initialization)
-stack<vector<vector<shared_ptr<Piece>>>> redoHistory;
+Stack<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
 // Board.cpp
 Board::Board()
@@ -432,12 +432,18 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
     //     return true; // Indicate game over
     // }
 
-    // Check if the destination square has a piece of the same color
-    if (isSquareOccupied(endX, endY) &&
-        board[endX][endY]->getColor() == piece->getColor())
+    // Handle capturing an opponent's piece
+    if (isSquareOccupied(endX, endY))
     {
-        cout << "Cannot capture your own piece!" << endl;
-        return false;
+        auto targetPiece = board[endX][endY];
+        if (targetPiece->getColor() == piece->getColor())
+        {
+            cout << "Cannot capture your own piece!" << endl;
+            return false;
+        }
+        // Valid capture: Add the piece to the captured list
+        capturedPieces.capturePiece(targetPiece->getType(), targetPiece->isBlack());
+        board[endX][endY] = nullptr; // Clear the target square
     }
 
     // Handle En Passant (for Pawn)
@@ -452,6 +458,8 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
             {
                 board[endX][endY] = piece;
                 board[startX][startY] = nullptr;
+                board[lastMove.endX][lastMove.endY] = nullptr;
+                capturedPieces.capturePiece(piece->getType(), piece->isBlack());
                 board[lastMove.endX][lastMove.endY] = nullptr;
                 cout << piece->getSymbol() << " captured en passant!" << endl;
                 updateLastMove(startX, startY, endX, endY, true);
@@ -819,6 +827,26 @@ int Board::getHistorySize() const
 bool Board::isRedoEmpty() const
 {
     return redoHistory.empty();
+}
+
+
+void Board::capturePiece(const std::string& pieceType, bool isBlack) {
+    capturedPieces.capturePiece(pieceType, isBlack);
+}
+
+void Board::restoreCapturedPiece() {
+    capturedPieces.restoreLastCapturedPiece();
+}
+
+void Board::printCapturedPieces() const {
+    capturedPieces.printCapturedPieces();
+}
+
+string Board::convertToPosition(int x, int y) {
+    // Assuming x is the column (0-7) and y is the row (0-7)
+    char column = 'a' + x;  // Convert column number to letter ('a' to 'h')
+    char row = '8' - y;     // Convert row number to 8-1 (reverse order)
+    return string(1, column) + row;
 }
 
 // void Board::undoMove()

@@ -35,7 +35,7 @@ public:
     virtual vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const = 0;
     // Pure virtual function to mark attacked squares
     virtual void markAttacks(int x, int y, Board &board) = 0;
-
+    virtual string getType() const = 0;
     bool getColor() const { return isWhite; } // Returns the piece color
 };
 
@@ -60,6 +60,7 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board& board) override;
+    string getType() const override { return "King"; }
 };
 
 // Queen class
@@ -71,6 +72,8 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board& board) override;
+    string getType() const override { return "Queen"; }
+    
 };
 
 // Rook class
@@ -82,6 +85,8 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board& board) override;
+    string getType() const override { return "Rook"; }
+   
 };
 
 // Bishop class
@@ -93,6 +98,8 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board& board) override;
+    string getType() const override { return "Bishop"; }
+    
 };
 
 // Knight class
@@ -104,6 +111,8 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board& board) override;
+    string getType() const override { return "Knight"; }
+    
 };
 
 // Pawn class
@@ -115,6 +124,8 @@ public:
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
     vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board &board) const override;
     void markAttacks(int x, int y, Board &board) override;
+    string getType() const override { return "Pawn"; }
+    
 };
 
 

@@ -3,11 +3,13 @@
 
 #include <vector>
 #include <unordered_map>
-#include <queue>
+// #include <queue>
 #include <unordered_set>
 #include <utility>
 #include "Board.h" // Include the Board class for move generation
 #include "Piece.h" // Include the Piece
+#include "Stack.h"
+#include "Queue.h"
 
 using namespace std;
 
@@ -20,7 +22,7 @@ class CircularQueue
 {
 public:
     int size;
-    queue<pair<pair<int, int>, pair<int, int>>> q;  // Change q to hold the correct type
+    Queue<pair<pair<int, int>, pair<int, int>>> q;  // Change q to hold the correct type
     unordered_set<string> seenMoves;
 
     CircularQueue(int size);
@@ -54,15 +56,45 @@ private:
     MoveNode *tail; // Points to the last node
 };
 
+
+// class GameTreeNode {
+// public:
+//     Board boardState; // The game board after a move
+//     int score;        // A simple score for the state (this could be improved with evaluations)
+//     GameTreeNode* parent; // Pointer to the parent node in the tree
+//     vector<GameTreeNode*> children; // Children representing possible future moves
+//     pair<pair<int, int>, pair<int, int>> move; // The move that led to this state
+
+//     GameTreeNode(Board &board, int score = 0, GameTreeNode* parent = nullptr)
+//         : boardState(board), score(score), parent(parent), move({{-1, -1}, {-1, -1}}) {}
+    
+//     // Constructor for child nodes (takes the move as well)
+//     GameTreeNode(const Board &board, int score = 0, const pair<pair<int, int>, pair<int, int>> &move)
+//         : boardState(board),score(score) , move(move) {}
+
+//     // Add a child node (representing a move in the future)
+//     void addChild(GameTreeNode* child) {
+//         children.push_back(child);
+//     }
+
+//     // Recursively delete the tree
+//     ~GameTreeNode() {
+//         for (auto child : children) {
+//             delete child;
+//         }
+//     }
+// };
+
 // AI Class to manage the AI's decision-making
 class AI
 {
 private:
     CircularQueue moveHistory;
     MoveList possibleMoves;
+    // GameTreeNode* gameTreeRoot; // The root of the game tree
 
 public:
-    AI(int moveHistorySize);
+   AI(int moveHistorySize);
 
     void generatePossibleMoves(const Board &board);
     pair<pair<int, int>, pair<int, int>> selectMove(const Board &board);
@@ -70,6 +102,8 @@ public:
     pair<pair<int, int>, pair<int, int>> getRandomMove(MoveList &moveList);
     void exploreMovesBFS(pair<int, int> startMove, const Board &board);
     bool isMoveValid(const Move &move, Board &board);
+    // void buildGameTree(const Board& board, int depth, GameTreeNode* currentNode);
 };
+
 
 #endif // AI_H
