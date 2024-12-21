@@ -39,6 +39,11 @@ int main()
         cout << "Welcome to Chess (" << (gameMode == 1 ? "Player vs. Player" : "Player vs. AI") << ")!" << endl;
         chessBoard.printBoard();
 
+        if (chessBoard.isKingInCheck(currentPlayer == 1))
+        {
+            cout << "Player " << currentPlayer << "'s king is in check!" << endl;
+        }
+        
         // Reset attack flags at the start of each turn
         chessBoard.resetAttackFlags();
         // Player's turn

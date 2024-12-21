@@ -455,7 +455,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
         if (abs(startY - endY) == 1 && abs(startX - endX) == 1)
         {
             if (lastMove.isTwoSquareMove && lastMove.endX == startX && endY == lastMove.startY)
-            {
+            { 
                 board[endX][endY] = piece;
                 board[startX][startY] = nullptr;
                 board[lastMove.endX][lastMove.endY] = nullptr;
@@ -485,9 +485,46 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
     cout << piece->getSymbol() << " moved from "
          << startX << "," << startY << " to " << endX << "," << endY << "." << endl;
 
+    // // After the move, check if the king is still in check
+    // if (isKingInCheck(piece->getColor() == 'w'))  // Check if the current player's king is in check
+    // {
+    //     cout << "King is in check! Move is undone." << endl;
+
+    //     // Undo the move if the king is still in check
+    //     undoMove();
+    //     return false; // Indicate the move is invalid due to the check
+    // }
+
+
     return true;
 }
 
+bool Board::isKingInCheck(bool isWhite) const
+{
+    int kingX = -1, kingY = -1;
+
+    // Locate the king
+    for (int y = 0; y < 8; ++y)
+    {
+        for (int x = 0; x < 8; ++x)
+        {
+            shared_ptr<Piece> piece = board[y][x];
+            if (piece && piece->getSymbol() == (isWhite ? 'K' : 'k'))
+            {
+                kingX = x;
+                kingY = y;
+                break;
+            }
+        }
+    }
+
+    // If king isn't found, return false or handle it appropriately
+    if (kingX == -1 || kingY == -1)
+        return false; // King not found, cannot be in check
+
+    // Check if the king's position is under attack
+    return isKingUnderAttack(kingX, kingY, !isWhite);
+}
 
 void Board::resetAttackFlags() {
     for (int x = 0; x < 8; ++x) {
@@ -708,7 +745,7 @@ bool Board::isSquareUnderAttack(int x, int y, bool color) const
         for (int j = 0; j < 8; j++)
         {
             shared_ptr<Piece> attacker = board[i][j];
-            if (attacker && attacker->getColor() != color)
+            if (attacker && attacker->getColor() == color)
             {
                 // Check if the attacker can move to (x, y)
                 if (attacker->isValidMove(i, j, x, y))
@@ -736,6 +773,23 @@ bool Board::isSquareUnderAttack(int x, int y, bool color) const
         }
     }
     return false; // No attackers found
+}
+
+bool Board::isKingUnderAttack(int x, int y, bool byWhite) const
+{
+    for (int i = 0; i < 8; ++i)
+    {
+        for (int j = 0; j < 8; ++j)
+        {
+            shared_ptr<Piece> piece = board[i][j];
+            // Use getColor() instead of accessing isWhite directly
+            if (piece && piece->getColor() == byWhite && piece->isValidMove(j, i, x, y))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Board::saveHistory()

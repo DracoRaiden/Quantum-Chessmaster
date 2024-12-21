@@ -35,7 +35,7 @@ public:
     vector<vector<Square>> squareBoard;
     Board(); // Constructor
     CapturedPieceList capturedPieces;
-    
+
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
     void printBoard() const;                                            // Prints the board to the console
@@ -64,8 +64,10 @@ void resetAttackFlags();
     void capturePiece(const std::string& pieceType, bool isBlack);
     void restoreCapturedPiece();
     void printCapturedPieces() const;
+    bool isKingInCheck(bool isWhite) const;
     // New method to convert coordinates to chessboard position
     string convertToPosition(int x, int y);
+    bool isKingUnderAttack(int x, int y, bool byWhite) const;
     // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move
