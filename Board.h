@@ -5,8 +5,8 @@
 #include <vector>
 #include <string>
 #include <memory> // For smart pointers (optional but useful)
-#include <stack>
-#include <queue>
+#include "Queue.h"    // Include your custom Queue header
+#include "Stack.h"    // Include your custom Stack header
 #include "CapturedPieceList.h" // Include CapturedPieceList header
 
 using namespace std;
@@ -26,7 +26,7 @@ public:
     {
         return !isWhite;
     }
- // New method to get the type of the piece (e.g., "King", "Queen")
+    // New method to get the type of the piece (e.g., "King", "Queen")
     virtual string getType() const = 0;  // Pure virtual function, must be implemented by derived classes
 
     bool getHasMoved() const { return hasMoved; }
@@ -110,10 +110,10 @@ private:
     vector<vector<shared_ptr<Piece>>> board; // 2D vector of smart pointers to pieces
 
     // Stack to store history of board states (for undo functionality)
-    stack<vector<vector<shared_ptr<Piece>>>> history;
+    Stack<vector<vector<shared_ptr<Piece>>>> history;  // Use your custom Stack class
 
 public:
-    queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
+    Queue<vector<vector<shared_ptr<Piece>>>> redoHistory;  // Use your custom Queue class
     Board(); // Constructor
     CapturedPieceList capturedPieces;
     shared_ptr<Piece> getPiece(int x, int y) const;
@@ -133,8 +133,6 @@ public:
     void saveHistory();
 
     bool isKingInCheck(bool isWhite) const;         // Checks if the king of the given color is in check
- //   bool isCheckmate(bool isWhite);                // Checks if the player of the given color is in checkmate
- //   bool isStalemate(bool isWhite);                // Checks if the player of the given color is in stalemate
     bool hasLegalMoves(bool isWhite);              // Helper function to check if the player has any legal moves
 
     void capturePiece(const std::string& pieceType, bool isBlack);
@@ -153,7 +151,7 @@ struct LastMove
     int startX, startY;
     int endX, endY;
     bool isTwoSquareMove;
-    shared_ptr<Piece> pieceCaptured; // Change to shared_ptr<Piece>  Assuming Piece is the class or struct that represents a chess piece
+    shared_ptr<Piece> pieceCaptured; // Change to shared_ptr<Piece> Assuming Piece is the class or struct that represents a chess piece
 };
 
 #endif // BOARD_H

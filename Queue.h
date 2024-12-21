@@ -1,40 +1,27 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <string>
-#include <stdexcept>
+#include <deque>
 
+template <typename T>
 class Queue {
 public:
-    Queue();
-    ~Queue();
+    // Add an element to the queue
+    void push(const T& value);
 
-    void push(const std::string& value);
-    void push(int value);
+    // Remove an element from the queue
     void pop();
-    std::string frontString() const;
-    int frontInt() const;
+
+    // Get the front element of the queue
+    T& front();
+
+    // Check if the queue is empty
     bool empty() const;
 
 private:
-    struct Node {
-        bool isString;  // Flag to distinguish between string and int
-        union {
-            std::string stringData;
-            int intData;
-        };
-        Node* next;
-        Node(bool isStr, const std::string& strValue) : isString(isStr), stringData(strValue), next(nullptr) {}
-        Node(bool isStr, int intValue) : isString(isStr), intData(intValue), next(nullptr) {}
-        ~Node() {
-            if (isString) {
-                stringData.~basic_string();
-            }
-        }
-    };
-
-    Node* frontNode;
-    Node* backNode;
+    std::deque<T> data;
 };
 
-#endif // QUEUE_H
+#include "Queue.cpp"
+
+#endif

@@ -1,12 +1,12 @@
 #include "Board.h"
 #include <memory>
-#include<stack>
-#include <queue>
+#include "Stack.h"
+#include "Queue.h"
 #include "Board.h"
 #include "CapturedPieceList.h"
 #include <iostream>
 
-queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
+Queue<vector<vector<shared_ptr<Piece>>>> redoHistory;
 
 
 // ANSI color codes
@@ -512,8 +512,6 @@ for (int y = startY; y != endY + step; y += step) {
     return true;
 }
 
-
-
 void Board::saveHistory() {
     // Create a new vector to store the current state of the board.
     vector<vector<shared_ptr<Piece>>> currentState;
@@ -522,17 +520,14 @@ void Board::saveHistory() {
     for (int row = 0; row < 8; ++row) {
         vector<shared_ptr<Piece>> rowState;
         for (int col = 0; col < 8; ++col) {
-            // Add the piece at the current position to the row.
             rowState.push_back(board[row][col]);
         }
-        // Add the row to the current state.
         currentState.push_back(rowState);
     }
 
     // Push the current state onto the history stack.
     history.push(currentState);
 }
-
 
 void Board::undoMove() {
     if (!history.empty()) {
@@ -573,8 +568,6 @@ void Board::redoMove() {
         cout << "No moves to redo!" << endl;
     }
 }
-
-
 
 
 bool Board::hasLegalMoves(bool isWhite)

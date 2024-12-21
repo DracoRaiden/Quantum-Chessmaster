@@ -1,60 +1,32 @@
+#ifndef QUEUE_CPP
+#define QUEUE_CPP
+
 #include "Queue.h"
 
-Queue::Queue() : frontNode(nullptr), backNode(nullptr) {}
+template <typename T>
+void Queue<T>::push(const T& value) {
+    data.push_back(value);
+}
 
-Queue::~Queue() {
-    while (!empty()) {
-        pop();
+template <typename T>
+void Queue<T>::pop() {
+    if (!data.empty()) {
+        data.pop_front();
     }
 }
 
-void Queue::push(const std::string& value) {
-    Node* newNode = new Node(true, value);
-    if (empty()) {
-        frontNode = backNode = newNode;
-    } else {
-        backNode->next = newNode;
-        backNode = newNode;
+template <typename T>
+T& Queue<T>::front() {
+    if (!data.empty()) {
+        return data.front();
     }
+    // Handle empty queue case if needed
+    throw std::out_of_range("Queue is empty");
 }
 
-void Queue::push(int value) {
-    Node* newNode = new Node(false, value);
-    if (empty()) {
-        frontNode = backNode = newNode;
-    } else {
-        backNode->next = newNode;
-        backNode = newNode;
-    }
+template <typename T>
+bool Queue<T>::empty() const {
+    return data.empty();
 }
 
-void Queue::pop() {
-    if (empty()) {
-        throw std::out_of_range("Queue is empty");
-    }
-
-    Node* temp = frontNode;
-    frontNode = frontNode->next;
-    if (frontNode == nullptr) {
-        backNode = nullptr;
-    }
-    delete temp;
-}
-
-std::string Queue::frontString() const {
-    if (empty() || !frontNode->isString) {
-        throw std::out_of_range("Queue is empty or front is not a string");
-    }
-    return frontNode->stringData;
-}
-
-int Queue::frontInt() const {
-    if (empty() || frontNode->isString) {
-        throw std::out_of_range("Queue is empty or front is not an int");
-    }
-    return frontNode->intData;
-}
-
-bool Queue::empty() const {
-    return frontNode == nullptr;
-}
+#endif

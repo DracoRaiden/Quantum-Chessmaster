@@ -1,49 +1,32 @@
+#ifndef STACK_CPP
+#define STACK_CPP
+
 #include "Stack.h"
 
-Stack::Stack() : topNode(nullptr) {}
+template <typename T>
+void Stack<T>::push(const T& value) {
+    data.push_back(value);
+}
 
-Stack::~Stack() {
-    while (!empty()) {
-        pop();
+template <typename T>
+void Stack<T>::pop() {
+    if (!data.empty()) {
+        data.pop_back();
     }
 }
 
-void Stack::push(const std::string& value) {
-    Node* newNode = new Node(true, value);
-    newNode->next = topNode;
-    topNode = newNode;
-}
-
-void Stack::push(int value) {
-    Node* newNode = new Node(false, value);
-    newNode->next = topNode;
-    topNode = newNode;
-}
-
-void Stack::pop() {
-    if (empty()) {
-        throw std::out_of_range("Stack is empty");
+template <typename T>
+T& Stack<T>::top() {
+    if (!data.empty()) {
+        return data.back();
     }
-
-    Node* temp = topNode;
-    topNode = topNode->next;
-    delete temp;
+    // Handle empty stack case if needed
+    throw std::out_of_range("Stack is empty");
 }
 
-std::string Stack::topString() const {
-    if (empty() || !topNode->isString) {
-        throw std::out_of_range("Stack is empty or top is not a string");
-    }
-    return topNode->stringData;
+template <typename T>
+bool Stack<T>::empty() const {
+    return data.empty();
 }
 
-int Stack::topInt() const {
-    if (empty() || topNode->isString) {
-        throw std::out_of_range("Stack is empty or top is not an int");
-    }
-    return topNode->intData;
-}
-
-bool Stack::empty() const {
-    return topNode == nullptr;
-}
+#endif

@@ -1,39 +1,27 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <string>
-#include <stdexcept>
+#include <vector>
 
+template <typename T>
 class Stack {
 public:
-    Stack();
-    ~Stack();
+    // Push an element onto the stack
+    void push(const T& value);
 
-    void push(const std::string& value);
-    void push(int value);
+    // Pop an element from the stack
     void pop();
-    std::string topString() const;  // Keep for compatibility with string
-    int topInt() const;             // Keep for compatibility with int
+
+    // Return the top element of the stack
+    T& top();
+
+    // Check if the stack is empty
     bool empty() const;
 
 private:
-    struct Node {
-        bool isString;  // Flag to distinguish between string and int
-        union {
-            std::string stringData;
-            int intData;
-        };
-        Node* next;
-        Node(bool isStr, const std::string& strValue) : isString(isStr), stringData(strValue), next(nullptr) {}
-        Node(bool isStr, int intValue) : isString(isStr), intData(intValue), next(nullptr) {}
-        ~Node() {
-            if (isString) {
-                stringData.~basic_string();
-            }
-        }
-    };
-
-    Node* topNode;
+    std::vector<T> data;
 };
 
-#endif // STACK_H
+#include "Stack.cpp"
+
+#endif
