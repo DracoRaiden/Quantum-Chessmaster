@@ -11,6 +11,8 @@
 
 using namespace std;
 
+class CapturedPieceList;
+
 // Base class for all chess pieces
 class Piece
 {

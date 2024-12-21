@@ -1,5 +1,8 @@
 #include "CapturedPieceList.h"
 
+using namespace std;
+
+
 CapturedPieceList::CapturedPieceList() 
     : blackHead(nullptr), blackTail(nullptr), whiteHead(nullptr), whiteTail(nullptr) {}
 
@@ -21,6 +24,11 @@ CapturedPieceList::~CapturedPieceList() {
 }
 
 void CapturedPieceList::capturePiece(const std::string& pieceType, bool isBlack) {
+    if (pieceType.empty()) {
+        cout << "Error: Invalid piece type provided for capturing." << endl;
+        return;
+    }
+
     CapturedPieceNode* newPiece = new CapturedPieceNode(pieceType, isBlack);
 
     if (isBlack) {
@@ -40,7 +48,9 @@ void CapturedPieceList::capturePiece(const std::string& pieceType, bool isBlack)
             whiteTail = newPiece;
         }
     }
+    cout << "Captured " << (isBlack ? "Black" : "White") << " piece: " << pieceType << endl;
 }
+
 
 void CapturedPieceList::restoreLastCapturedPiece() {
     if (!blackTail && !whiteTail) {
@@ -51,7 +61,9 @@ void CapturedPieceList::restoreLastCapturedPiece() {
     // Restore the most recent captured piece (starting with black)
     if (blackTail) {
         CapturedPieceNode* lastCaptured = blackTail;
-        std::cout << "Restoring piece: " << lastCaptured->pieceType << " (Black)" << std::endl;
+
+        //if
+        cout << "Restoring piece: " << lastCaptured->pieceType << " (Black)" << std::endl;
 
         if (blackHead == blackTail) {  // If there's only one node for black
             delete blackHead;

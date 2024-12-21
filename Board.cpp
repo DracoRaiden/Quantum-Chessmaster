@@ -296,12 +296,17 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
         return false;
     }
 
-    // Check if the destination square has a piece of the same color
-    if (isSquareOccupied(endX, endY) &&
-        board[endX][endY]->getColor() == piece->getColor())
+    // Handle capturing an opponent's piece
+    if (isSquareOccupied(endX, endY))
     {
-        cout << "Cannot capture your own piece!" << endl;
-        return false;
+        auto targetPiece = board[endX][endY];
+        if (targetPiece->getColor() == piece->getColor())
+        {
+            cout << "Cannot capture your own piece!" << endl;
+            return false;
+        }
+        // Capture the opponent's piece
+        capturedPieces.capturePiece(targetPiece->getType(), targetPiece->isBlack());
     }
 
     // Handle En Passant (for Pawn)
@@ -314,12 +319,13 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
         {
             if (lastMove.isTwoSquareMove && lastMove.endX == startX && endY == lastMove.startY)
             {
-                board[endX][endY] = piece;
-                board[startX][startY] = nullptr;
-                board[lastMove.endX][lastMove.endY] = nullptr;
+                auto enPassantPiece = board[lastMove.endX][lastMove.endY];
+                if (enPassantPiece)
+                {
+                    capturedPieces.capturePiece(enPassantPiece->getType(), enPassantPiece->isBlack());
+                    board[lastMove.endX][lastMove.endY] = nullptr;
+                }
                 cout << piece->getSymbol() << " captured en passant!" << endl;
-                updateLastMove(startX, startY, endX, endY, true);
-                return true;
             }
         }
     }
@@ -343,6 +349,8 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
 
     return true;
 }
+
+
 
 
 shared_ptr<Piece> Board::getPiece(int row, int col) const
