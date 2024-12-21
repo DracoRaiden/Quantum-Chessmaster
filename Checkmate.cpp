@@ -188,6 +188,7 @@ bool Checkmate::canKingEscape(int kingX, int kingY, Board &board) {
                 if (pieceAtNewSquare != nullptr && pieceAtNewSquare->getColor() == boardSquares[kingX][kingY]->getColor()) {
                     continue;  // Skip if there's a friendly piece
                 }
+                cout << "Checking escape at (" << newX << ", " << newY << ")" << endl;
 
                 // Check if the square is under attack by checking the 'isUnderAttack' flag in the Square
                 if (!board.getSquare(newX, newY).isUnderAttack) {

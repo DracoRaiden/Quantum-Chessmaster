@@ -328,7 +328,7 @@ pair<int, int> Board::getBlackKingPosition()
     return {-1, -1}; // If not found
 }
 
-bool Board::movePiece(int startX, int startY, int endX, int endY, int currentPlayer)
+bool Board::movePiece(int startX, int startY, int endX, int endY)
 {
     // Save the current board state before making the move (for undo functionality)
     saveHistory();
@@ -392,36 +392,37 @@ bool Board::movePiece(int startX, int startY, int endX, int endY, int currentPla
         cout << "Path is blocked!" << endl;
         return false;
     }
-    int kingX, kingY;
     
-    if (currentPlayer == 1)
-    {
-        // Player 1's (White) turn - Check if Black's King is in check
-        tie(kingX, kingY) = getBlackKingPosition(); // Get Black King's position
-        cout << "Checking if Black King at (" << kingX << ", " << kingY << ") is in check." << endl;
-        // Add logic to check if Black's King is in check
-        if (checkmate->isCheckmate(kingX, kingY, *this)) {
-        cout << "Checkmate! Player Black wins!" << endl;
-        return true; // Indicate game over
-    }
-    }
-    else if(currentPlayer == 2)
-    {
-        // Player 2's (Black) turn - Check if White's King is in check
-        tie(kingX, kingY) = getWhiteKingPosition(); // Get White King's position
-        cout << "Checking if White King at (" << kingX << ", " << kingY << ") is in check." << endl;
-        // Add logic to check if White's King is in check
-        if (checkmate->isCheckmate(kingX, kingY, *this)) {
-        cout << "Checkmate! Player White wins!" << endl;
-        return true; // Indicate game over
-    }
-    }
-    if (checkmate->isKingInCheck(kingX, kingY, *this)) {
-    cout << "King is in check!" << endl;
-    board[startX][startY] = piece; // Undo move if king is in check
-    board[endX][endY] = nullptr;
-    return false; // Return false to prevent further move
-}
+    // int kingX, kingY;
+    
+    // if (currentPlayer == 1)
+    // {
+    //     // Player 1's (White) turn - Check if Black's King is in check
+    //     tie(kingX, kingY) = getBlackKingPosition(); // Get Black King's position
+    //     cout << "Checking if Black King at (" << kingX << ", " << kingY << ") is in check." << endl;
+    //     // Add logic to check if Black's King is in check
+    //     if (checkmate->isCheckmate(kingX, kingY, *this)) {
+    //     cout << "Checkmate! Player White wins!" << endl;
+    //     return true; // Indicate game over
+    // // }
+    // // }
+    // if(currentPlayer == 2)
+    // {
+    //     // Player 2's (Black) turn - Check if White's King is in check
+    //     tie(kingX, kingY) = getWhiteKingPosition(); // Get White King's position
+    //     cout << "Checking if White King at (" << kingX << ", " << kingY << ") is in check." << endl;
+    //     // Add logic to check if White's King is in check
+    //     if (checkmate->isCheckmate(kingX, kingY, *this)) {
+    //     cout << "Checkmate! Player Black wins!" << endl;
+    //     return true; // Indicate game over
+    // }
+    //     }
+//     if (checkmate->isKingInCheck(kingX, kingY, *this)) {
+//     cout << "King is in check!" << endl;
+//     board[startX][startY] = piece; // Undo move if king is in check
+//     board[endX][endY] = nullptr;
+//     return false; // Return false to prevent further move
+// }
 
 
     // // Check if the move results in checkmate
@@ -478,6 +479,16 @@ bool Board::movePiece(int startX, int startY, int endX, int endY, int currentPla
 
     return true;
 }
+
+
+void Board::resetAttackFlags() {
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            getSquare(x, y).isUnderAttack = false; // Reset each square's attack status
+        }
+    }
+}
+
 
 // In Board.cpp
 vector<vector<shared_ptr<Piece>>> Board::getBoard() const

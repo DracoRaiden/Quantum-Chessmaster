@@ -36,7 +36,7 @@ public:
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
     // void buildAdjacencyList(vector<vector<int>>& adjList) const;
-    bool movePiece(int startX, int startY, int endX, int endY, int currentPlayer); // Moves a piece
+    bool movePiece(int startX, int startY, int endX, int endY); // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
@@ -49,7 +49,7 @@ public:
     vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
     bool isRedoEmpty() const;
     int getHistorySize() const;
-
+void resetAttackFlags();
     Square &getSquare(int x, int y);
     pair<int, int> getWhiteKingPosition();
     pair<int, int> getBlackKingPosition();

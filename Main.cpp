@@ -39,6 +39,8 @@ int main()
         cout << "Welcome to Chess (" << (gameMode == 1 ? "Player vs. Player" : "Player vs. AI") << ")!" << endl;
         chessBoard.printBoard();
 
+        // Reset attack flags at the start of each turn
+        chessBoard.resetAttackFlags();
         // Player's turn
         if (gameMode == 2 && currentPlayer == 2) // AI's turn if mode is Player vs AI and currentPlayer is 2
         {
@@ -46,7 +48,7 @@ int main()
             pair<pair<int, int>, pair<int, int>> aiMove = aiPlayer.selectMove(chessBoard);
             auto [start, end] = aiMove;
             cout << "AI moves: " << start.first << "," << start.second << " -> " << end.first << "," << end.second << endl;
-            chessBoard.movePiece(start.first, start.second, end.first, end.second, currentPlayer);
+            chessBoard.movePiece(start.first, start.second, end.first, end.second);
 
             currentPlayer = 1; // Switch back to Player 1 after AI's move
             continue;          // Skip player input when AI plays
@@ -119,7 +121,7 @@ int main()
                 continue;
             }
 
-            if (chessBoard.movePiece(startX, startY, endX, endY, currentPlayer))
+            if (chessBoard.movePiece(startX, startY, endX, endY))
             {
                 firstMoveMade = true;
                 currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns after a successful move
