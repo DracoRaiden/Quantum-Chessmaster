@@ -66,12 +66,12 @@ bool CircularQueue::isMoveRecent(pair<pair<int, int>, pair<int, int>> move)
     return seenMoves.find(moveStr) != seenMoves.end();
 }
 
-void CircularQueue::addMove(std::pair<std::pair<int, int>, std::pair<int, int>> move)
+void CircularQueue::addMove(pair<std::pair<int, int>, std::pair<int, int>> move)
 {
     if (q.size() == size)
     {
         // Remove the oldest move from the queue and `seenMoves` if the queue is full
-        string oldMoveStr = std::to_string(q.front().first.first) + "," + std::to_string(q.front().first.second) +
+        string oldMoveStr = to_string(q.front().first.first) + "," + std::to_string(q.front().first.second) +
                             " -> " + std::to_string(q.front().second.first) + "," + std::to_string(q.front().second.second);
         seenMoves.erase(oldMoveStr);
         q.pop();
