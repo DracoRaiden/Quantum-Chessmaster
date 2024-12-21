@@ -23,8 +23,14 @@ stack<vector<vector<shared_ptr<Piece>>>> redoHistory;
 Board::Board()
 {
     board.resize(8, vector<shared_ptr<Piece>>(8, nullptr)); // Resize board to 8x8
+    squareBoard.resize(8, vector<Square>(8));  // Initialize squareBoard
+
+
     setupBoard();
     lastMove = {0, 0, 0, 0, false}; // Default initialization
+
+
+
     // After the setupBoard() call in main(), add:
     // for (int i = 0; i < 8; ++i) {
     //     for (int j = 0; j < 8; ++j) {
@@ -42,10 +48,21 @@ Board::Board()
     }
 }
 
+// Board class method to get a reference to a square at (x, y)
+Square& Board::getSquare(int x, int y) {
+    return squareBoard[x][y];  // Return the reference to Square object in squareBoard
+}
+
+
+
 void Board::setupBoard()
 {
     // Initialize an empty 8x8 board
     board.resize(8, vector<shared_ptr<Piece>>(8, nullptr));
+
+
+// Initialize an empty 8x8 board for squares
+    squareBoard.resize(8, vector<Square>(8));
 
     // Set up Pawns
     for (int i = 0; i < 8; ++i)

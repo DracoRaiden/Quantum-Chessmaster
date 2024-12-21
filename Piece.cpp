@@ -1,4 +1,4 @@
-#include "Board.h"  // Make sure this is included
+#include "Board.h" // Make sure this is included
 #include <memory>
 #include <list>
 #include <queue>
@@ -8,7 +8,6 @@
 #include <algorithm>
 
 using namespace std;
-
 
 bool Pawn::isValidMove(int startX, int startY, int endX, int endY) const
 {
@@ -103,20 +102,23 @@ bool King::isValidMove(int startX, int startY, int endX, int endY) const
     return false; // Move is invalid if it doesn't satisfy the above conditions
 }
 
-
-
 // King piece movement logic
-vector<pair<int, int>> King::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> King::getLegalMoves(int startX, int startY, const Board &board) const
+{
     vector<std::pair<int, int>> moves;
 
-    for (int dx : {-1, 0, 1}) {
-        for (int dy : {-1, 0, 1}) {
+    for (int dx : {-1, 0, 1})
+    {
+        for (int dy : {-1, 0, 1})
+        {
             if (dx == 0 && dy == 0)
                 continue;
 
             int newX = startX + dx, newY = startY + dy;
-            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-                if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite) {
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8)
+            {
+                if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite)
+                {
                     moves.push_back({newX, newY});
                 }
             }
@@ -126,25 +128,57 @@ vector<pair<int, int>> King::getLegalMoves(int startX, int startY, const Board& 
     return moves;
 }
 
+void King::markAttacks(int x, int y, Board& board)
+{
+    // King can move one square in any direction
+    vector<pair<int, int>> directions = {
+        {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1} // All 8 directions
+    };
+
+    // Check each direction
+    for (auto& dir : directions)
+    {
+        int targetX = x + dir.first, targetY = y + dir.second;
+
+        // Check if the new position is out of bounds
+        if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8)
+        {
+            // If square is unoccupied or occupied by an enemy piece, mark as under attack
+            if (!board.isSquareOccupied(targetX, targetY) || board.getPiece(targetX, targetY)->getColor() != isWhite)
+            {
+                board.getSquare(targetX, targetY).isUnderAttack = true;
+            }
+        }
+    }
+}
+
+
 // Rook piece movement logic
-vector<pair<int, int>> Rook::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Rook::getLegalMoves(int startX, int startY, const Board &board) const
+{
     vector<pair<int, int>> moves;
 
     // Rook can move horizontally or vertically
     vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    for (auto& dir : directions) {
+    for (auto &dir : directions)
+    {
         int newX = startX, newY = startY;
-        while (true) {
+        while (true)
+        {
             newX += dir.first;
             newY += dir.second;
 
             if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
                 break;
 
-            if (!board.isSquareOccupied(newX, newY)) {
+            if (!board.isSquareOccupied(newX, newY))
+            {
                 moves.push_back({newX, newY});
-            } else {
-                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+            }
+            else
+            {
+                if (board.getPiece(newX, newY)->getColor() != isWhite)
+                {
                     moves.push_back({newX, newY});
                 }
                 break;
@@ -155,25 +189,70 @@ vector<pair<int, int>> Rook::getLegalMoves(int startX, int startY, const Board& 
     return moves;
 }
 
+void Rook::markAttacks(int x, int y, Board& board)
+{
+    // Rook can move horizontally or vertically
+    vector<pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1} // Horizontal and vertical movements
+    };
+
+    // Check each direction
+    for (auto& dir : directions)
+    {
+        int targetX = x, targetY = y;
+
+        // Move in the current direction
+        while (true)
+        {
+            targetX += dir.first;
+            targetY += dir.second;
+
+            // Check if the new position is out of bounds
+            if (targetX < 0 || targetX >= 8 || targetY < 0 || targetY >= 8)
+                break;
+
+            // If square is unoccupied or occupied by an enemy piece, mark as under attack
+            if (!board.isSquareOccupied(targetX, targetY) || board.getPiece(targetX, targetY)->getColor() != isWhite)
+            {
+                board.getSquare(targetX, targetY).isUnderAttack = true;
+            }
+
+            // Stop if we hit a piece (occupied square)
+            if (board.isSquareOccupied(targetX, targetY))
+            {
+                break;
+            }
+        }
+    }
+}
+
+
 // Bishop piece movement logic
-vector<pair<int, int>> Bishop::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Bishop::getLegalMoves(int startX, int startY, const Board &board) const
+{
     std::vector<std::pair<int, int>> moves;
 
     // Bishop moves diagonally
     vector<pair<int, int>> directions = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-    for (auto& dir : directions) {
+    for (auto &dir : directions)
+    {
         int newX = startX, newY = startY;
-        while (true) {
+        while (true)
+        {
             newX += dir.first;
             newY += dir.second;
 
             if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
                 break;
 
-            if (!board.isSquareOccupied(newX, newY)) {
+            if (!board.isSquareOccupied(newX, newY))
+            {
                 moves.push_back({newX, newY});
-            } else {
-                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+            }
+            else
+            {
+                if (board.getPiece(newX, newY)->getColor() != isWhite)
+                {
                     moves.push_back({newX, newY});
                 }
                 break;
@@ -184,27 +263,72 @@ vector<pair<int, int>> Bishop::getLegalMoves(int startX, int startY, const Board
     return moves;
 }
 
+void Bishop::markAttacks(int x, int y, Board& board)
+{
+    // Bishop moves diagonally in four directions
+    vector<pair<int, int>> directions = {
+        {1, 1}, {-1, -1}, {1, -1}, {-1, 1} // Diagonal movements
+    };
+
+    // Check each diagonal direction
+    for (auto& dir : directions)
+    {
+        int targetX = x, targetY = y;
+
+        // Move in the current direction
+        while (true)
+        {
+            targetX += dir.first;
+            targetY += dir.second;
+
+            // Check if the new position is out of bounds
+            if (targetX < 0 || targetX >= 8 || targetY < 0 || targetY >= 8)
+                break;
+
+            // If square is unoccupied or occupied by an enemy piece, mark as under attack
+            if (!board.isSquareOccupied(targetX, targetY) || board.getPiece(targetX, targetY)->getColor() != isWhite)
+            {
+                board.getSquare(targetX, targetY).isUnderAttack = true;
+            }
+
+            // Stop if we hit a piece (occupied square)
+            if (board.isSquareOccupied(targetX, targetY))
+            {
+                break;
+            }
+        }
+    }
+}
+
+
 // Queen piece movement logic
-vector<pair<int, int>> Queen::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Queen::getLegalMoves(int startX, int startY, const Board &board) const
+{
     std::vector<std::pair<int, int>> moves;
 
     // Queen can move like both a Rook and a Bishop
     vector<pair<int, int>> directions = {
         {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
-    
-    for (auto& dir : directions) {
+
+    for (auto &dir : directions)
+    {
         int newX = startX, newY = startY;
-        while (true) {
+        while (true)
+        {
             newX += dir.first;
             newY += dir.second;
 
             if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8)
                 break;
 
-            if (!board.isSquareOccupied(newX, newY)) {
+            if (!board.isSquareOccupied(newX, newY))
+            {
                 moves.push_back({newX, newY});
-            } else {
-                if (board.getPiece(newX, newY)->getColor() != isWhite) {
+            }
+            else
+            {
+                if (board.getPiece(newX, newY)->getColor() != isWhite)
+                {
                     moves.push_back({newX, newY});
                 }
                 break;
@@ -215,18 +339,61 @@ vector<pair<int, int>> Queen::getLegalMoves(int startX, int startY, const Board&
     return moves;
 }
 
+void Queen::markAttacks(int x, int y, Board& board)
+{
+    // Queen can move like both a Rook and a Bishop
+    vector<pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}, // Rook-like movements
+        {1, 1}, {-1, -1}, {1, -1}, {-1, 1} // Bishop-like movements
+    };
+
+    // Check each direction
+    for (auto& dir : directions)
+    {
+        int targetX = x, targetY = y;
+        
+        // Move in the current direction
+        while (true)
+        {
+            targetX += dir.first;
+            targetY += dir.second;
+
+            // Check if the new position is out of bounds
+            if (targetX < 0 || targetX >= 8 || targetY < 0 || targetY >= 8)
+                break;
+
+            // If square is unoccupied or occupied by an enemy piece, mark as under attack
+            if (!board.isSquareOccupied(targetX, targetY) || board.getPiece(targetX, targetY)->getColor() != isWhite)
+            {
+                board.getSquare(targetX, targetY).isUnderAttack = true;
+            }
+
+            // Stop if we hit a piece (occupied square)
+            if (board.isSquareOccupied(targetX, targetY))
+            {
+                break;
+            }
+        }
+    }
+}
+
+
 // Knight piece movement logic
-vector<pair<int, int>> Knight::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Knight::getLegalMoves(int startX, int startY, const Board &board) const
+{
     vector<pair<int, int>> moves;
 
     // Knight moves in an 'L' shape
     vector<pair<int, int>> directions = {
         {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 
-    for (auto& dir : directions) {
+    for (auto &dir : directions)
+    {
         int newX = startX + dir.first, newY = startY + dir.second;
-        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-            if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite) {
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8)
+        {
+            if (!board.isSquareOccupied(newX, newY) || board.getPiece(newX, newY)->getColor() != isWhite)
+            {
                 moves.push_back({newX, newY});
             }
         }
@@ -235,25 +402,70 @@ vector<pair<int, int>> Knight::getLegalMoves(int startX, int startY, const Board
     return moves;
 }
 
+void Knight::markAttacks(int x, int y, Board& board)
+{
+    // Knight moves in an 'L' shape
+    vector<pair<int, int>> directions = {
+        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, 
+        {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+    };
+
+    // Check each possible move direction
+    for (auto& dir : directions)
+    {
+        int targetX = x + dir.first;
+        int targetY = y + dir.second;
+
+        // Check if the target position is within bounds
+        if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8)
+        {
+            // Mark the square as under attack if it's either empty or occupied by an enemy piece
+            if (!board.isSquareOccupied(targetX, targetY) || board.getPiece(targetX, targetY)->getColor() != isWhite)
+            {
+                board.getSquare(targetX, targetY).isUnderAttack = true;
+            }
+        }
+    }
+}
+
 // Pawn piece movement logic
-vector<pair<int, int>> Pawn::getLegalMoves(int startX, int startY, const Board& board) const {
+vector<pair<int, int>> Pawn::getLegalMoves(int startX, int startY, const Board &board) const
+{
     vector<pair<int, int>> moves;
 
     // Pawns move forward, but can attack diagonally
     int direction = (board.getPiece(startX, startY)->getColor() == 'w') ? -1 : 1; // White moves up, Black moves down
 
     // Move forward by one square
-    if (!board.isSquareOccupied(startX + direction, startY)) {
+    if (!board.isSquareOccupied(startX + direction, startY))
+    {
         moves.push_back({startX + direction, startY});
     }
 
     // Attack diagonally
-    if (startY > 0 && board.isSquareOccupied(startX + direction, startY - 1) && board.getPiece(startX + direction, startY - 1)->getColor() != isWhite) {
+    if (startY > 0 && board.isSquareOccupied(startX + direction, startY - 1) && board.getPiece(startX + direction, startY - 1)->getColor() != isWhite)
+    {
         moves.push_back({startX + direction, startY - 1});
     }
-    if (startY < 7 && board.isSquareOccupied(startX + direction, startY + 1) && board.getPiece(startX + direction, startY + 1)->getColor() != isWhite) {
+    if (startY < 7 && board.isSquareOccupied(startX + direction, startY + 1) && board.getPiece(startX + direction, startY + 1)->getColor() != isWhite)
+    {
         moves.push_back({startX + direction, startY + 1});
     }
 
     return moves;
+}
+
+
+
+// Pawn class method to mark attacks (non-const)
+void Pawn::markAttacks(int x, int y, Board& board) {
+    vector<pair<int, int>> attackMoves = getLegalMoves(x, y, board);
+
+    for (const auto& move : attackMoves) {
+        int targetX = move.first;
+        int targetY = move.second;
+
+        // Mark the square as under attack (no longer const-correct method)
+        board.getSquare(targetX, targetY).isUnderAttack = true;
+    }
 }

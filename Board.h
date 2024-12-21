@@ -11,6 +11,7 @@
 using namespace std;
 
 class Piece;
+class Square;
 // Class representing the Chessboard
 class Board
 {
@@ -21,14 +22,17 @@ private:
     stack<vector<vector<shared_ptr<Piece>>>> history;
 
 public:
+    // New 2D vector of Squares
+    vector<vector<Square>> squareBoard;
     Board(); // Constructor
+
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
     void printBoard() const;                                            // Prints the board to the console
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
     // void buildAdjacencyList(vector<vector<int>>& adjList) const;
-    bool movePiece(int startX, int startY, int endX, int endY);         // Moves a piece
+    bool movePiece(int startX, int startY, int endX, int endY); // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
@@ -41,6 +45,10 @@ public:
     vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
     bool isRedoEmpty() const;
     int getHistorySize() const;
+
+    Square& getSquare(int x, int y);
+    
+    
     // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <queue>
 
 MoveList::MoveList() : head(nullptr), tail(nullptr) {}
 

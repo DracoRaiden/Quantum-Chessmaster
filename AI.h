@@ -11,6 +11,9 @@
 
 using namespace std;
 
+class Board;
+class Piece;
+
 // Circular Queue class to store recent moves
 class CircularQueue
 {
