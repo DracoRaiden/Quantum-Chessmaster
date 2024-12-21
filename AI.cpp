@@ -24,6 +24,7 @@ void MoveList::addMove(const pair<pair<int, int>, pair<int, int>> &move)
     }
 }
 
+
 vector<pair<pair<int, int>, pair<int, int>>> MoveList ::getAllMoves()
 {
     vector<pair<pair<int, int>, pair<int, int>>> moves;

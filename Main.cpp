@@ -2,7 +2,7 @@
 #include "Board.h"
 #include "AI.h"
 #include "Piece.h"
-
+#include "Checkmate.h"
 using namespace std;
 
 int main()
@@ -11,6 +11,10 @@ int main()
     chessBoard.setupBoard();
     int moveHistorySize = 100;
     AI aiPlayer(moveHistorySize); // moveHistorySize is the size of the circular queue for move history
+    
+        // Create Checkmate object
+    Checkmate checkmate(chessBoard, aiPlayer);
+
     string input, target, command;
     int gameMode = 0;           // 1 for Player vs Player, 2 for Player vs AI
     int currentPlayer = 1;      // 1 for Player 1 (White), 2 for Player 2 (Black)
@@ -134,6 +138,25 @@ int main()
             cout << "Move out of bounds. " << e.what() << endl;
         }
 
+    // Check if the king is in check
+    if (checkmate.isInCheck())
+    {
+        std::cout << "The king is in check!" << std::endl;
+    }
+    else
+    {
+        std::cout << "The king is safe!" << std::endl;
+    }
+
+    // Check if the player is in checkmate
+    if (checkmate.isCheckmate())
+    {
+        std::cout << "Checkmate! The game is over!" << std::endl;
+    }
+    else
+    {
+        std::cout << "No checkmate yet!" << std::endl;
+    }
         // Check for game-ending conditions (Optional, can be added)
         // if (chessBoard.isGameOver())
         // {

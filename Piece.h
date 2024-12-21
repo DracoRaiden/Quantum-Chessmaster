@@ -109,9 +109,8 @@ public:
     Pawn(bool isWhite) : Piece(isWhite) {}
     char getSymbol() const override { return isWhite ? 'P' : 'p'; }
     bool isValidMove(int startX, int startY, int endX, int endY) const override;
-    vector<std::pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
+    vector<pair<int, int>> getLegalMoves(int startX, int startY, const Board& board) const override;
    
 };
-
 
 #endif // PIECE_H

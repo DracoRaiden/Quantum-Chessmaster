@@ -17,7 +17,7 @@ class CircularQueue
 public:
     int size;
     queue<pair<pair<int, int>, pair<int, int>>> q;  // Change q to hold the correct type
-    unordered_set<std::string> seenMoves;
+    unordered_set<string> seenMoves;
 
     CircularQueue(int size);
     bool isMoveRecent(pair<pair<int, int>, pair<int, int>> move);
