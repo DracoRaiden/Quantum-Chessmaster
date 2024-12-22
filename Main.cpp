@@ -19,8 +19,16 @@ int main()
     int currentPlayer = 1;      // 1 for Player 1 (White), 2 for Player 2 (Black)
     bool firstMoveMade = false; // Track if the first move has been made
     bool redoMoveMade;
-    cout << "Welcome to Chess!" << endl;
-    cout << "Select Game Mode:\n1. Player vs Player\n2. Player vs AI\nEnter 1 or 2: ";
+    cout << "******************************\n";
+    cout << "* Welcome to the Chess Game! *\n";
+    cout << "******************************\n";
+    cout << "\n";
+    cout << "Choose Your Game Mode:\n";
+    cout << "1. Player vs Player\n";
+    cout << "2. Player vs AI\n";
+    cout << "\n";
+    cout << "Enter 1 for Player vs Player or 2 for Player vs AI: ";
+
     cin >> gameMode;
 
     if (gameMode != 1 && gameMode != 2)
@@ -43,7 +51,7 @@ int main()
         {
             cout << "Player " << currentPlayer << "'s king is in check!" << endl;
         }
-        
+
         // Reset attack flags at the start of each turn
         chessBoard.resetAttackFlags();
         // Player's turn

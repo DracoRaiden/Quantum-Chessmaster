@@ -1,5 +1,6 @@
 #include "Board.h"
 #include <memory>
+#include <fstream>
 #include <list>
 #include <unordered_map>
 #include <cstdlib>
@@ -370,6 +371,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
             board[endX][rookNewY]->setHasMoved(true);
 
             cout << "Castling performed successfully!" << endl;
+           // saveGameState();
             return true;
         }
         else
@@ -444,6 +446,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
         // Valid capture: Add the piece to the captured list
         capturedPieces.capturePiece(targetPiece->getType(), targetPiece->isBlack());
         board[endX][endY] = nullptr; // Clear the target square
+        //saveGameState();
     }
 
     // Handle En Passant (for Pawn)
@@ -462,6 +465,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
                 capturedPieces.capturePiece(piece->getType(), piece->isBlack());
                 board[lastMove.endX][lastMove.endY] = nullptr;
                 cout << piece->getSymbol() << " captured en passant!" << endl;
+               // saveGameState();
                 updateLastMove(startX, startY, endX, endY, true);
                 return true;
             }
@@ -476,6 +480,7 @@ bool Board::movePiece(int startX, int startY, int endX, int endY)
     if ((piece->getSymbol() == 'P' && endX == 0) || (piece->getSymbol() == 'p' && endX == 7))
     {
         promotePawn(endX, endY);
+       // saveGameState();
     }
 
     // Update the last move
@@ -745,7 +750,7 @@ bool Board::isSquareUnderAttack(int x, int y, bool color) const
         for (int j = 0; j < 8; j++)
         {
             shared_ptr<Piece> attacker = board[i][j];
-            if (attacker && attacker->getColor() == color)
+            if (attacker && attacker->getColor() != color)
             {
                 // Check if the attacker can move to (x, y)
                 if (attacker->isValidMove(i, j, x, y))
@@ -1271,3 +1276,89 @@ vector<pair<int, int>> Board::getPossibleMoves(int startX, int startY) const
 
     return moves;
 }
+
+
+// void Board::saveGameState() {
+//     // Save the current board state and move history
+//     currentGameState.board = board;
+//     currentGameState.moveHistory = moveHistory;
+    
+//     // Save game state to a file
+//     std::ofstream outFile("game_save.txt", std::ios::trunc);
+//     if (outFile) {
+//         outFile << currentGameState.moveHistory.size() << std::endl;
+//         for (const auto& move : currentGameState.moveHistory) {
+//             outFile << move << std::endl;
+//         }
+
+//         // Save the board state
+//         for (const auto& row : currentGameState.board) {
+//             for (const auto& piece : row) {
+//                 if (piece) {
+//                     outFile << piece->getSymbol() << " ";
+//                 } else {
+//                     outFile << "  ";  // Empty square
+//                 }
+//             }
+//             outFile << std::endl;
+//         }
+//     } else {
+//         std::cerr << "Error saving the game state to file!" << std::endl;
+//     }
+//     std::cout << "Game state saved successfully!" << std::endl;
+// }
+
+// void Board::loadGameState() {
+//     std::ifstream inFile("game_save.txt");
+
+//     if (!inFile) {
+//         std::cerr << "Error opening file for loading game!" << std::endl;
+//         return;
+//     }
+
+//     // Load the move history
+//     size_t moveCount;
+//     inFile >> moveCount;
+//     moveHistory.clear();
+//     for (size_t i = 0; i < moveCount; ++i) {
+//         std::string move;
+//         std::getline(inFile, move);  // To capture moves with spaces
+//         if (!move.empty()) {
+//             moveHistory.push_back(move);
+//         }
+//     }
+
+//     // Load the board state
+//     for (int i = 0; i < 8; i++) {
+//         for (int j = 0; j < 8; j++) {
+//             std::string symbol;
+//             inFile >> symbol;
+//             if (symbol != "  ") { // Check if there is a piece
+//                 shared_ptr<Piece> piece = createPieceFromSymbol(symbol);  // You should implement this function
+//                 board[i][j] = piece;
+//             } else {
+//                 board[i][j] = nullptr;  // Empty square
+//             }
+//         }
+//     }
+
+//     inFile.close();
+//     std::cout << "Game loaded successfully!" << std::endl;
+// }
+
+// // Create piece from symbol (e.g., 'P', 'R', 'N', etc.)
+//     std::shared_ptr<Piece> createPieceFromSymbol(const std::string& symbol) {
+//         if (symbol == "K") return std::make_shared<King>(true);
+//         if (symbol == "k") return std::make_shared<King>(false);
+//         if (symbol == "Q") return std::make_shared<Queen>(true);
+//         if (symbol == "q") return std::make_shared<Queen>(false);
+//         if (symbol == "R") return std::make_shared<Rook>(true);
+//         if (symbol == "r") return std::make_shared<Rook>(false);
+//         if (symbol == "B") return std::make_shared<Bishop>(true);
+//         if (symbol == "b") return std::make_shared<Bishop>(false);
+//         if (symbol == "N") return std::make_shared<Knight>(true);
+//         if (symbol == "n") return std::make_shared<Knight>(false);
+//         if (symbol == "P") return std::make_shared<Pawn>(true);
+//         if (symbol == "p") return std::make_shared<Pawn>(false);
+//         return nullptr;  // Return nullptr for invalid symbol
+//     }

@@ -29,6 +29,7 @@ private:
     // Stack to store history of board states (for undo functionality)
     Stack<vector<vector<shared_ptr<Piece>>>> history;
     Checkmate *checkmate; // Add Checkmate as a member of Board class
+    // GameState currentGameState;  // Current game state
 
 public:
     // New 2D vector of Squares
@@ -68,7 +69,9 @@ void resetAttackFlags();
     // New method to convert coordinates to chessboard position
     string convertToPosition(int x, int y);
     bool isKingUnderAttack(int x, int y, bool byWhite) const;
-    // bool isMoveRepeated(const Move &move);
+    // void saveGameState();  // Save the current game state after every move
+    // void loadGameState(const GameState& gameState);  // Load a saved game state
+    // // bool isMoveRepeated(const Move &move);
     // void markMoveAsMade(const Move &move);
     // Move calculateAIMove();                          // Function to calculate AI's move
     // vector<Move> getLegalMovesForPlayer(int player); // Get all legal moves for a player
@@ -87,5 +90,11 @@ struct LastMove
 };
 
 extern LastMove lastMove;
+
+// struct GameState {
+//     std::vector<std::vector<std::shared_ptr<Piece>>> board;  // 8x8 board
+//     std::vector<std::string> moveHistory; // List of moves played
+// };
+
 
 #endif // BOARD_H
