@@ -1,60 +1,103 @@
 #include <iostream>
 #include "Board.h"
-#include "CapturedPieceList.h" // Include the CapturedPieceList header
+#include "AI.h"
+#include "Piece.h"
+#include "Checkmate.h"
 using namespace std;
 
 int main()
 {
     Board chessBoard;
     chessBoard.setupBoard();
+    int moveHistorySize = 100;
+    AI aiPlayer(moveHistorySize); // moveHistorySize is the size of the circular queue for move history
+    // // Initialize Checkmate with the board's current state
+    // Checkmate checkmate(chessBoard.getBoard()); // Pass board reference to Checkmate
 
     string input, target, command;
-    int currentPlayer = 1; // 1 for Player 1 (White), 2 for Player 2 (Black)
+    int gameMode = 0;           // 1 for Player vs Player, 2 for Player vs AI
+    int currentPlayer = 1;      // 1 for Player 1 (White), 2 for Player 2 (Black)
     bool firstMoveMade = false; // Track if the first move has been made
+    bool redoMoveMade;
+    cout << "Welcome to Chess!" << endl;
+    cout << "Select Game Mode:\n1. Player vs Player\n2. Player vs AI\nEnter 1 or 2: ";
+    cin >> gameMode;
+
+    if (gameMode != 1 && gameMode != 2)
+    {
+        cout << "Invalid selection. Exiting game." << endl;
+        return 0;
+    }
 
     while (true)
     {
-        cout << "Welcome to Chess (Player vs. Player)!" << endl;
+        if (command != "undo" && command != "quit")
+        {
+            // Removed system("cls"); to prevent clearing the screen
+        }
+
+        cout << "Welcome to Chess (" << (gameMode == 1 ? "Player vs. Player" : "Player vs. AI") << ")!" << endl;
         chessBoard.printBoard();
 
-        // Display check warning
         if (chessBoard.isKingInCheck(currentPlayer == 1))
         {
             cout << "Player " << currentPlayer << "'s king is in check!" << endl;
         }
+        
+        // Reset attack flags at the start of each turn
+        chessBoard.resetAttackFlags();
+        // Player's turn
+        if (gameMode == 2 && currentPlayer == 2) // AI's turn if mode is Player vs AI and currentPlayer is 2
+        {
+            // Call AI's move
+            pair<pair<int, int>, pair<int, int>> aiMove = aiPlayer.selectMove(chessBoard);
+            auto [start, end] = aiMove;
+            cout << "AI moves: " << start.first << "," << start.second << " -> " << end.first << "," << end.second << endl;
+            chessBoard.movePiece(start.first, start.second, end.first, end.second);
 
-        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo the undone move, 'captured' to show captured pieces, or 'quit' to exit: ";
+            currentPlayer = 1; // Switch back to Player 1 after AI's move
+            continue;          // Skip player input when AI plays
+        }
+
+        cout << "Player " << currentPlayer << "'s turn. Enter your move (e.g., e2 e4), 'undo' to undo last move, 'redo' to redo undone move, or 'quit' to exit: ";
         cin >> command;
-
         if (command == "quit")
         {
             cout << "Game ended. Thanks for playing!" << endl;
             break;
         }
-        else if (command == "undo")
+
+        if (command == "undo")
         {
-            if (!firstMoveMade)
+            // Check if there are moves to undo (history size > 1).
+            if (chessBoard.getHistorySize() < 1)
             {
-                cout << "Undo is not available as no move has been made yet!" << endl;
-                continue;
+                cout << "No moves to undo!" << endl;
             }
-            chessBoard.undoMove();
-            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns back
-            cout << "Last move has been undone!" << endl;
+            else
+            {
+                chessBoard.undoMove();                        // Undo the last move
+                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch back the player after undo
+                cout << "Last move has been undone!" << endl;
+            }
             continue;
         }
         else if (command == "redo")
         {
-            if (!firstMoveMade)
+            // Check if there are moves to redo (redoHistory not empty).
+            if (chessBoard.isRedoEmpty())
             {
-                cout << "Redo is not available as no move has been made yet!" << endl;
-                continue;
+                cout << "No moves to redo!" << endl;
             }
-            chessBoard.redoMove();
-            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
-            cout << "Move has been redone!" << endl;
+            else
+            {
+                chessBoard.redoMove();                        // Redo the last undone move
+                currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns forward
+                cout << "Last undone move has been redone!" << endl;
+            }
             continue;
         }
+
         else if (command == "captured")
         {
             cout << "Captured pieces: " << endl;
@@ -62,7 +105,7 @@ int main()
             continue;
         }
 
-        cin >> target;
+        cin >> target; // Read the target position
 
         try
         {
@@ -92,16 +135,7 @@ int main()
 
             if (chessBoard.movePiece(startX, startY, endX, endY))
             {
-                // If a piece is captured, track it
-                shared_ptr<Piece> capturedPiece = chessBoard.getPiece(endX, endY);
-                if (capturedPiece != nullptr)
-                {
-                    string capturedPieceType = capturedPiece->getType();
-                    bool capturedPieceColor = capturedPiece->isBlack();
-                    chessBoard.capturePiece(capturedPieceType, capturedPieceColor);
-                }
-
-                firstMoveMade = true; // Mark that the first move has been made
+                firstMoveMade = true;
                 currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch turns after a successful move
             }
             else
@@ -117,6 +151,32 @@ int main()
         {
             cout << "Move out of bounds. " << e.what() << endl;
         }
+
+        // // Check if the king is in check
+        // if (checkmate.isInCheck())
+        // {
+        //     std::cout << "The king is in check!" << std::endl;
+        // }
+        // else
+        // {
+        //     std::cout << "The king is safe!" << std::endl;
+        // }
+
+        // // Check if the player is in checkmate
+        // if (checkmate.isCheckmate())
+        // {
+        //     std::cout << "Checkmate! The game is over!" << std::endl;
+        // }
+        // else
+        // {
+        //     std::cout << "No checkmate yet!" << std::endl;
+        // }
+        //     // Check for game-ending conditions (Optional, can be added)
+        // if (chessBoard.isGameOver())
+        // {
+        //     cout << "Game over! Player " << (currentPlayer == 1 ? 2 : 1) << " wins!" << endl;
+        //     break;
+        // }
     }
 
     return 0;

@@ -2,6 +2,7 @@
 #define QUEUE_CPP
 
 #include "Queue.h"
+#include <stdexcept>  // Include this to handle out_of_range exception
 
 template <typename T>
 void Queue<T>::push(const T& value) {
@@ -28,5 +29,11 @@ template <typename T>
 bool Queue<T>::empty() const {
     return data.empty();
 }
+
+template <typename T>
+size_t Queue<T>::size() const {
+    return data.size();  // Return the size of the underlying deque
+}
+
 
 #endif

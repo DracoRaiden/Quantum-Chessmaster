@@ -2,6 +2,7 @@
 #define STACK_CPP
 
 #include "Stack.h"
+#include <stdexcept>  // Include this to handle out_of_range exception
 
 template <typename T>
 void Stack<T>::push(const T& value) {
@@ -27,6 +28,11 @@ T& Stack<T>::top() {
 template <typename T>
 bool Stack<T>::empty() const {
     return data.empty();
+}
+
+template <typename T>
+size_t Stack<T>::size() const {
+    return data.size();  // Return the size of the underlying vector
 }
 
 #endif

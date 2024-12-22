@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+// #include <queue>
+
 
 MoveList::MoveList() : head(nullptr), tail(nullptr) {}
 
@@ -122,7 +124,7 @@ pair<pair<int, int>, pair<int, int>> AI::getRandomMove(MoveList &moveList)
 
 void AI::exploreMovesBFS(pair<int, int> startMove, const Board &board)
 {
-    queue<pair<int, int>> q;
+    Queue<pair<int, int>> q;
     q.push(startMove);
     CircularQueue recentMoves(10); // Limiting recent moves to last 10 for efficiency
 
@@ -213,6 +215,28 @@ void AI::generatePossibleMoves(const Board &board)
     }
 }
 
+// // Function to explore possible future moves using the game tree
+//     void AI :: buildGameTree(const Board& board, int depth, GameTreeNode* currentNode) {
+//         if (depth == 0) return; // Base case: no more moves to explore
+        
+//         generatePossibleMoves(board);  // Populate the list of possible moves
+
+//         // For every possible move, create a new game state and add it as a child
+//         for (const auto& move : possibleMoves.getAllMoves()) {
+//             Board newBoard = board;  // Copy the current board
+//             // Apply the move to the new board
+//             // (Note: You would need to actually apply the move here)
+            
+//             // Create a new node for this state
+//             GameTreeNode* newNode = new GameTreeNode(newBoard);
+//             currentNode->addChild(newNode);
+            
+//             // Recurse to explore deeper moves
+//             buildGameTree(newBoard, depth - 1, newNode);
+//         }
+//     }
+
+
 pair<pair<int, int>, pair<int, int>> AI::selectMove(const Board &board)
 {
     // Step 1: Generate possible moves
@@ -282,9 +306,11 @@ pair<pair<int, int>, pair<int, int>> AI::selectMove(const Board &board)
     return randomMove;
 }
 
-
 bool AI::isMoveValid(const Move &move, Board &board)
 {
+    // Initialize Checkmate with the board's current state
+    Checkmate checkmate(board.getBoard()); // Pass board reference to Checkmate
+
     cout << "Checking move validity: " << move.startX << "," << move.startY << " -> " << move.endX << "," << move.endY << endl;
 
     // Check if the move is within board bounds

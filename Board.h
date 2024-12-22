@@ -5,102 +5,20 @@
 #include <vector>
 #include <string>
 #include <memory> // For smart pointers (optional but useful)
-#include "Queue.h"    // Include your custom Queue header
-#include "Stack.h"    // Include your custom Stack header
-#include "CapturedPieceList.h" // Include CapturedPieceList header
+// #include <stack>
+#include "Piece.h"
+#include "Checkmate.h"
+#include "Stack.h"
+#include "Queue.h"
+#include "CapturedPieceList.h"
+
+
 
 using namespace std;
 
-class CapturedPieceList;
-
-// Base class for all chess pieces
-class Piece
-{
-protected:
-    bool isWhite;  // true for white, false for black
-    bool hasMoved; // Track if the piece has moved
-public:
-    Piece(bool isWhite) : isWhite(isWhite) {}
-    // Determines if the piece belongs to the black player
-    bool isBlack() const
-    {
-        return !isWhite;
-    }
-    // New method to get the type of the piece (e.g., "King", "Queen")
-    virtual string getType() const = 0;  // Pure virtual function, must be implemented by derived classes
-
-    bool getHasMoved() const { return hasMoved; }
-    void setHasMoved(bool moved) { hasMoved = moved; }
-
-    virtual char getSymbol() const = 0;                                             // Pure virtual function for symbol
-    virtual bool isValidMove(int startX, int startY, int endX, int endY) const = 0; // Pure virtual function for move validation
-    bool getColor() const { return isWhite; }                                       // Returns the piece color
-};
-
-// King class
-class King : public Piece
-{
-public:
-    King(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'K' : 'k'; }
-    string getType() const override { return "King"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
-
-
-// Queen class
-class Queen : public Piece
-{
-public:
-    Queen(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'Q' : 'q'; }
-    string getType() const override { return "Queen"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
-
-
-// Rook class
-class Rook : public Piece
-{
-public:
-    Rook(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'R' : 'r'; }
-    string getType() const override { return "Rook"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
-
-
-// Bishop class
-class Bishop : public Piece
-{
-public:
-    Bishop(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'B' : 'b'; }
-    string getType() const override { return "Bishop"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
-
-
-// Knight class
-class Knight : public Piece
-{
-public:
-    Knight(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'N' : 'n'; }
-    string getType() const override { return "Knight"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
-
-
-// Pawn class
-class Pawn : public Piece
-{
-public:
-    Pawn(bool isWhite) : Piece(isWhite) {}
-    char getSymbol() const override { return isWhite ? 'P' : 'p'; }
-    string getType() const override { return "Pawn"; }
-    bool isValidMove(int startX, int startY, int endX, int endY) const override;
-};
+class Piece;
+class Square;
+class Checkmate;
 
 
 // Class representing the Chessboard
@@ -108,38 +26,52 @@ class Board
 {
 private:
     vector<vector<shared_ptr<Piece>>> board; // 2D vector of smart pointers to pieces
-
     // Stack to store history of board states (for undo functionality)
-    Stack<vector<vector<shared_ptr<Piece>>>> history;  // Use your custom Stack class
+    Stack<vector<vector<shared_ptr<Piece>>>> history;
+    Checkmate *checkmate; // Add Checkmate as a member of Board class
 
 public:
-    Queue<vector<vector<shared_ptr<Piece>>>> redoHistory;  // Use your custom Queue class
+    // New 2D vector of Squares
+    vector<vector<Square>> squareBoard;
     Board(); // Constructor
     CapturedPieceList capturedPieces;
+
     shared_ptr<Piece> getPiece(int x, int y) const;
     void setupBoard();                                                  // Sets up initial board state
     void printBoard() const;                                            // Prints the board to the console
     bool isSquareOccupied(int x, int y) const;                          // Checks if a square is occupied
     bool isPathClear(int startX, int startY, int endX, int endY) const; // Checks if path is clear for non-knight moves
-    bool movePiece(int startX, int startY, int endX, int endY);         // Moves a piece
+    // void buildAdjacencyList(vector<vector<int>>& adjList) const;
+    bool movePiece(int startX, int startY, int endX, int endY); // Moves a piece
     void updateLastMove(int startX, int startY, int endX, int endY, bool isTwoSquareMove);
     void promotePawn(int x, int y);
     bool isSquareUnderAttack(int x, int y, bool color) const;
     bool canCastle(int startX, int startY, int endX, int endY) const;
     // Undo the last move
     void undoMove();
-    void redoMove();
+    bool redoMove();
     // Function to track the current state of the board and push it to the history stack
     void saveHistory();
-
-    bool isKingInCheck(bool isWhite) const;         // Checks if the king of the given color is in check
-    bool hasLegalMoves(bool isWhite);              // Helper function to check if the player has any legal moves
-
+    vector<pair<int, int>> getPossibleMoves(int startX, int startY) const;
+    bool isRedoEmpty() const;
+    int getHistorySize() const;
+void resetAttackFlags();
+    Square &getSquare(int x, int y);
+    pair<int, int> getWhiteKingPosition();
+    pair<int, int> getBlackKingPosition();
+    // Function to return the board (access to the internal 2D vector of shared_ptr<Piece>)
+    vector<vector<shared_ptr<Piece>>> getBoard() const;
     void capturePiece(const std::string& pieceType, bool isBlack);
     void restoreCapturedPiece();
     void printCapturedPieces() const;
+    bool isKingInCheck(bool isWhite) const;
     // New method to convert coordinates to chessboard position
     string convertToPosition(int x, int y);
+    bool isKingUnderAttack(int x, int y, bool byWhite) const;
+    // bool isMoveRepeated(const Move &move);
+    // void markMoveAsMade(const Move &move);
+    // Move calculateAIMove();                          // Function to calculate AI's move
+    // vector<Move> getLegalMovesForPlayer(int player); // Get all legal moves for a player
 };
 
 // Converts chess notation (e.g., "e2") to board indices
@@ -151,7 +83,9 @@ struct LastMove
     int startX, startY;
     int endX, endY;
     bool isTwoSquareMove;
-    shared_ptr<Piece> pieceCaptured; // Change to shared_ptr<Piece> Assuming Piece is the class or struct that represents a chess piece
+    shared_ptr<Piece> pieceCaptured; // Change to shared_ptr<Piece>  Assuming Piece is the class or struct that represents a chess piece
 };
+
+extern LastMove lastMove;
 
 #endif // BOARD_H

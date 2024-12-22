@@ -18,6 +18,9 @@ public:
     // Check if the queue is empty
     bool empty() const;
 
+    // Return the size of the stack
+    size_t size() const;
+    
 private:
     std::deque<T> data;
 };
