@@ -23,7 +23,6 @@
 
 ## 🛠️ Project Structure
 
-src/
 ├── Board.cpp / .h            # Chessboard and display logic
 ├── Piece\*.cpp / .h           # Base class + derived classes for each piece
 ├── MoveManager.cpp / .h      # makeMove(), updateMove(), and validation
