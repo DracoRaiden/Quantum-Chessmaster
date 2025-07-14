@@ -24,12 +24,19 @@
 ## 🛠️ Project Structure
 
 ├── Board.cpp / .h            # Chessboard and display logic
+
 ├── Piece\*.cpp / .h           # Base class + derived classes for each piece
+
 ├── MoveManager.cpp / .h      # makeMove(), updateMove(), and validation
+
 ├── AIEngine.cpp / .h         # AI logic using Minimax with priority queue
+
 ├── GameManager.cpp / .h      # Turn management and game loop
+
 ├── HistoryManager.cpp / .h   # Undo/Redo via stack and deque
+
 ├── IOHandler.cpp / .h        # File saving/loading
+
 └── main.cpp                  # Main entry point
 
 
